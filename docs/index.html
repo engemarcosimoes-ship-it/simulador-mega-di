@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Simulador Mega DI RF</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧮</text></svg>">
+<style>
+:root{--bg:#f6f7f9;--card:#ffffff;--tx:#14202e;--mut:#5d6b7a;--line:#d9dee5;--acc:#0b4f8a;--ok:#1b7a43;--warn:#a15c00;color-scheme:light;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root{--bg:#10161d;--card:#18212b;--tx:#e8edf2;--mut:#93a1b0;--line:#2b3846;--acc:#6db3f2;--ok:#5fd08a;--warn:#f0b35a;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:560px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:4px 0 2px}
+h2{font-size:15px;margin:0 0 6px}
+.sub{color:var(--mut);font-size:13px;margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
+label:first-child{margin-top:0}
+input{width:100%;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px}
+input:focus{outline:2px solid var(--acc);outline-offset:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.res div{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.res div:last-child{border-bottom:0}
+.res span:first-child{color:var(--mut)}
+.res b{font-variant-numeric:tabular-nums;text-align:right}
+.big{font-size:22px;color:var(--ok)}
+.tag{font-size:12.5px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--mut);text-align:right}
+.tag.real{color:var(--ok);border-color:var(--ok)}
+.tag.proj{color:var(--warn);border-color:var(--warn)}
+.note{font-size:12.5px;color:var(--mut);margin-top:6px}
+.err{color:var(--warn);font-size:14px}
+.chk{font-size:13.5px}
+.chk p{margin:4px 0}
+.okc{color:var(--ok)} .bad{color:var(--warn)}
+</style>
+</head>
+<body>
+<main>
+<h1>Simulador Mega DI RF (CAIXA)</h1>
+<p class="sub" id="status">Carregando cotas…</p>
+
+<div class="card">
+  <label for="v">Valor aplicado (R$)</label>
+  <input id="v" inputmode="decimal" value="410.000,00">
+  <div class="row">
+    <div><label for="d0">Data da aplicação</label><input id="d0" type="date" value="2026-08-04"></div>
+    <div><label for="d1">Data do resgate / posição</label><input id="d1" type="date"></div>
+  </div>
+  <label for="t">Taxa de projeção, % a.a. base 252 (vazio = automática)</label>
+  <input id="t" inputmode="decimal" placeholder="automática">
+  <p class="note" id="tnote"></p>
+</div>
+
+<div class="card res" id="out"></div>
+
+<div class="card chk" id="chk"></div>
+
+<p class="note">Cálculo pela cota oficial do fundo (CVM, Informe Diário), atualizada automaticamente duas vezes por dia. A CVM publica com 1 a 2 dias úteis de atraso; os dias depois da última cota são projetados pela taxa. Cota de fechamento D+0: rende a partir do dia útil seguinte à aplicação. IR regressivo (longo prazo): 22,5% até 180 dias corridos, 20% de 181 a 360, 17,5% de 361 a 720, 15% acima. Come-cotas de 15% no último dia útil de maio e novembro, descontado em cotas, como no app; o IR do resgate é a diferença. IOF regressivo só nos primeiros 30 dias. Estimativa; o extrato do banco prevalece.</p>
+</main>
+
+<script>
+const CONF={P:410000,D0:"2026-08-04",refs:[["2026-11-03",423180.46,420214.86],["2026-11-04",423404.38,420388.40]]};
+const IOF=[96,93,90,86,83,80,76,73,70,66,63,60,56,53,50,46,43,40,36,33,30,26,23,20,16,13,10,6,3,0];
+const $=id=>document.getElementById(id);
+const brl=n=>n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const num=s=>parseFloat(String(s).replace(/\./g,"").replace(",","."));
+const pd=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const dbr=s=>s.split("-").reverse().join("/");
+const pct=x=>(x*100).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";
+
+// Feriados nacionais (calendário ANBIMA), calculados para qualquer ano
+function easter(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;return new Date(y,mo-1,da)}
+const HC={};
+function hols(y){if(HC[y])return HC[y];const s=new Set(["01-01","04-21","05-01","09-07","10-12","11-02","11-15","11-20","12-25"].map(x=>y+"-"+x));const e=easter(y);[-48,-47,-2,60].forEach(o=>{const d=new Date(e);d.setDate(d.getDate()+o);s.add(iso(d))});return HC[y]=s}
+const isBD=d=>{const w=d.getDay();return w!==0&&w!==6&&!hols(d.getFullYear()).has(iso(d))};
+function bd(a,b){if(b<=a)return 0;let n=0;const c=new Date(a);while(true){c.setDate(c.getDate()+1);if(c>b)break;if(isBD(c))n++}return n}
+function lastBD(y,m){const d=new Date(y,m,0);while(!isBD(d))d.setDate(d.getDate()-1);return d}
+const aliq=dc=>dc<=180?0.225:dc<=360?0.20:dc<=720?0.175:0.15;
+
+let Q={},D=[],LAST=null;
+
+function autoRate(){ // média dos últimos 21 dias úteis com cota
+  const n=Math.min(21,D.length-1); if(n<1)return null;
+  const a=D[D.length-1-n],b=D[D.length-1];
+  return Math.pow(Q[b]/Q[a],1/bd(pd(a),pd(b)))-1;
+}
+// cota numa data: "app" = primeira cota >= data (aplicação); "pos" = última cota <= data (posição)
+function qAt(s,modo,dr){
+  if(s<D[0])return null;
+  if(s<=LAST){
+    if(Q[s])return {q:Q[s],real:true};
+    if(modo==="app"){const x=D.find(d=>d>=s);return {q:Q[x],real:true}}
+    let x=D[0];for(const d of D){if(d<=s)x=d;else break}return {q:Q[x],real:true};
+  }
+  return {q:Q[LAST]*Math.pow(1+dr,bd(pd(LAST),pd(s))),real:false};
+}
+function simular(P,s0,s1,dr){
+  const a=qAt(s0,"app",dr),b=qAt(s1,"pos",dr); if(!a||!b)return null;
+  let N=P/a.q,base=a.q,pago=0;
+  const y0=+s0.slice(0,4),y1=+s1.slice(0,4);
+  for(let y=y0;y<=y1;y++)for(const m of [5,11]){
+    const c=iso(lastBD(y,m)); if(c<=s0||c>s1)continue;
+    const qc=qAt(c,"pos",dr).q, g=N*(qc-base);
+    if(g>0){const t=0.15*g;pago+=t;N-=t/qc;base=qc}
+  }
+  const bruto=N*b.q, dc=Math.round((pd(s1)-pd(s0))/864e5), ganho=bruto+pago-P;
+  const iof=dc<30&&ganho>0?ganho*IOF[Math.max(dc,1)-1]/100:0;
+  const al=aliq(dc), irRes=Math.max(0,al*(ganho-iof)-pago);
+  return {bruto,pago,iof,al,irRes,liq:bruto-iof-irRes,dc,du:bd(pd(s0),pd(s1)),real:a.real&&b.real,q0:a.q,q1:b.q};
+}
+
+function render(){
+  if(!LAST)return;
+  let dr=autoRate();const tv=$("t").value.trim();
+  if(tv!==""&&!isNaN(num(tv)))dr=Math.pow(1+num(tv)/100,1/252)-1;
+  $("tnote").textContent=(tv===""?"Automática (média dos últimos 21 dias úteis): ":"Informada: ")+pct(Math.pow(1+dr,252)-1)+" a.a. Usada só depois de "+dbr(LAST)+".";
+  const P=num($("v").value),s0=$("d0").value,s1=$("d1").value;
+  if(!s0||!s1||isNaN(P)){$("out").innerHTML='<span class="err">Preencha valor e datas.</span>';return}
+  if(s1<=s0){$("out").innerHTML='<span class="err">A data final deve ser posterior à aplicação.</span>';return}
+  const r=simular(P,s0,s1,dr);
+  if(!r){$("out").innerHTML=`<span class="err">A série começa em ${dbr(D[0])}. Use uma aplicação a partir dessa data.</span>`;return}
+  try{localStorage.setItem("megadi",JSON.stringify({v:$("v").value,d0:s0}))}catch(e){}
+  const tag=r.real?`<span class="tag real">cota oficial</span>`:`<span class="tag proj">real até ${dbr(LAST)}, depois projeção</span>`;
+  $("out").innerHTML=
+   `<div><span>Origem</span>${tag}</div>
+    <div><span>Dias corridos / úteis</span><b>${r.dc} / ${r.du}</b></div>
+    <div><span>Saldo bruto</span><b>${brl(r.bruto)}</b></div>
+    ${r.pago>0?`<div><span>Come-cotas já descontado</span><b>${brl(r.pago)}</b></div>`:""}
+    ${r.iof>0?`<div><span>IOF</span><b>${brl(r.iof)}</b></div>`:""}
+    <div><span>IR no resgate (${(r.al*100).toLocaleString("pt-BR",{maximumFractionDigits:1})}%${r.pago>0?", descontado o come-cotas":""})</span><b>${brl(r.irRes)}</b></div>
+    <div><span>Saldo líquido</span><b class="big">${brl(r.liq)}</b></div>
+    <div><span>Rentabilidade líquida no período</span><b>${pct(r.liq/P-1)}</b></div>`;
+}
+function conferencia(){
+  const linhas=CONF.refs.filter(([d])=>d<=LAST&&Q[d]&&Q[CONF.D0]).map(([d,b,l])=>{
+    const r=simular(CONF.P,CONF.D0,d,0),ok=Math.abs(r.bruto-b)<1;
+    return `<p class="${ok?"okc":"bad"}">${dbr(d)}: bruto ${brl(r.bruto)} x app ${brl(b)}; líquido ${brl(r.liq)} x app ${brl(l)} ${ok?"✓":"✗ confira o CNPJ no script"}</p>`});
+  $("chk").innerHTML=`<h2>Conferência com o app da CAIXA</h2>`+(linhas.length?linhas.join(""):`<p>Sem cotas das datas de referência ainda.</p>`);
+}
+function mask(el){
+  const pos=el.selectionStart??el.value.length,before=el.value.slice(0,pos).replace(/[^\d,]/g,"").length;
+  const v=el.value.replace(/[^\d,]/g,""),k=v.indexOf(",");
+  let int=k<0?v:v.slice(0,k),dec=k<0?null:v.slice(k+1).replace(/,/g,"").slice(0,2);
+  int=int.replace(/^0+(?=\d)/,"").replace(/\B(?=(\d{3})+(?!\d))/g,".");
+  el.value=dec===null?int:int+","+dec;
+  let c=0,i=0;while(i<el.value.length&&c<before){if(/[\d,]/.test(el.value[i]))c++;i++}
+  try{el.setSelectionRange(i,i)}catch(e){}
+}
+function pad(el){if(!el.value)return;const k=el.value.indexOf(",");if(k<0)el.value+=",00";else if(el.value.length-k-1===1)el.value+="0";else if(k===el.value.length-1)el.value+="00"}
+
+$("d1").value=iso(new Date());
+try{const s=JSON.parse(localStorage.getItem("megadi")||"null");if(s){$("v").value=s.v;$("d0").value=s.d0}}catch(e){}
+$("v").addEventListener("input",()=>mask($("v")));
+$("v").addEventListener("blur",()=>{pad($("v"));render()});
+["v","d0","d1","t"].forEach(i=>$(i).addEventListener("input",render));
+
+fetch("cotas.json?t="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(j=>{
+  Q=j.cotas||{};D=Object.keys(Q).sort();
+  if(!D.length){$("status").textContent="Ainda sem cotas. Rode o workflow “Atualizar cotas” no GitHub.";return}
+  LAST=D[D.length-1];
+  $("status").textContent=`Última cota oficial: ${dbr(LAST)} · atualizado em ${dbr((j.atualizado_em||"").slice(0,10))} ${(j.atualizado_em||"").slice(11)}`;
+  render();conferencia();
+}).catch(()=>{$("status").textContent="Não foi possível carregar cotas.json."});
+</script>
+</body>
+</html>
