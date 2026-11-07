@@ -21,9 +21,12 @@ h1{font-size:20px;margin:2px 0}
 .sub{color:var(--mut);font-size:13px;margin:0}
 .badge{font:inherit;font-size:13px;font-weight:600;color:var(--ok);background:var(--card);border:1px solid var(--ok);border-radius:999px;padding:5px 14px;cursor:pointer}
 .badge.bad{color:var(--warn);border-color:var(--warn)}
+.badge.neu{color:var(--mut);border-color:var(--mut)}
 .badge:focus-visible,summary:focus-visible,input:focus{outline:2px solid var(--acc);outline-offset:2px}
 .confbox{margin-bottom:12px;font-size:13.5px}
 .confbox p{margin:4px 0}
+.alertbox{margin-bottom:12px;border-color:var(--warn);font-size:13.5px}
+.alertbox p{margin:3px 0;color:var(--warn)}
 .okc{color:var(--ok)} .bad{color:var(--warn)}
 
 /* Grade responsiva */
@@ -46,6 +49,7 @@ details>summary::-webkit-details-marker{display:none}
 .sumt::before{content:"›";display:inline-block;width:14px;transition:transform .15s}
 details[open] .sumt::before{transform:rotate(90deg)}
 .sumh{color:var(--mut);font-size:12.5px;text-align:right}
+.sumh.bad{color:var(--warn)}
 .proj{border-top:1px solid var(--line);margin-top:14px;padding-top:12px}
 .note{font-size:12.5px;color:var(--mut);margin:8px 0 0}
 .calc .note:first-of-type{margin-top:10px}
@@ -68,7 +72,7 @@ details[open] .sumt::before{transform:rotate(90deg)}
 .mon .s2{font-size:12.5px;color:var(--mut);margin:2px 0 6px}
 #chart svg{display:block;width:100%;height:auto}
 .bar{fill:var(--acc)}
-.bar.part{fill:var(--card);stroke:var(--acc);stroke-width:1.5;stroke-dasharray:4 3}
+.bar.proj{fill:var(--acc);fill-opacity:.25;stroke:var(--acc);stroke-width:1.5;stroke-dasharray:4 3}
 .vl{fill:var(--tx);font-size:11.5px;font-weight:600}
 .ml{fill:var(--mut);font-size:12px}
 .axis{stroke:var(--line)}
@@ -78,6 +82,9 @@ th{font-size:12.5px;color:var(--mut);font-weight:600;text-align:right;padding:6p
 td{text-align:right;padding:7px 0 7px 10px;border-bottom:1px solid var(--soft);white-space:nowrap}
 th:first-child,td:first-child{text-align:left;padding-left:0}
 td.liq{color:var(--acc);font-weight:600}
+tr.proj td{color:var(--mut);font-style:italic}
+tr.proj td.liq{color:var(--acc);opacity:.75}
+#mnote p{margin:6px 0 0}
 tfoot td{font-weight:700;border-top:1px solid var(--tx);border-bottom:0;padding-top:9px}
 tfoot td.liq{color:var(--ok)}
 tbody tr:last-child td{border-bottom:0}
@@ -97,6 +104,7 @@ tbody tr:last-child td{border-bottom:0}
   <button type="button" class="badge" id="confBtn" hidden aria-expanded="false" aria-controls="confBox"></button>
 </header>
 <div class="card confbox" id="confBox" hidden></div>
+<div class="card alertbox" id="alert" hidden role="alert"></div>
 
 <div class="grid">
   <section class="card a-inp">
@@ -119,7 +127,7 @@ tbody tr:last-child td{border-bottom:0}
   <section class="card mon a-mon" id="mon">
     <h2>Ganho mês a mês</h2>
     <p class="s1">Quanto rendeu em cada mês, em R$, sem o valor aplicado</p>
-    <p class="s2">Barras: rendimento bruto do mês</p>
+    <p class="s2">Barras: rendimento bruto do mês. Tracejadas: projeção.</p>
     <div id="chart"></div>
     <div class="tw">
       <table>
@@ -128,51 +136,88 @@ tbody tr:last-child td{border-bottom:0}
         <tfoot id="mfoot"></tfoot>
       </table>
     </div>
-    <p class="note" id="mnote"></p>
+    <div class="note" id="mnote"></div>
   </section>
 
   <details class="card calc a-calc">
     <summary><span class="sumt">Como é calculado</span><span class="sumh">fonte, IR, come-cotas, IOF</span></summary>
-    <p class="note">Cálculo pela cota oficial do fundo (CVM, Informe Diário), atualizada automaticamente duas vezes por dia. A CVM publica com 1 a 2 dias úteis de atraso; os dias depois da última cota são projetados pela taxa. Cota de fechamento D+0: rende a partir do dia útil seguinte à aplicação.</p>
-    <p class="note">IR regressivo (longo prazo): 22,5% até 180 dias corridos, 20% de 181 a 360, 17,5% de 361 a 720, 15% acima. Come-cotas de 15% no último dia útil de maio e novembro, descontado em cotas, como no app; o IR do resgate é a diferença. IOF regressivo só nos primeiros 30 dias.</p>
-    <p class="note">Ganho mês a mês: bruto é o que o fundo rendeu no mês. Líquido é quanto o mês somou ao que você receberia num resgate, já com o IR da faixa vigente. No mês em que a faixa de IR cai, o líquido sobe mais, porque a redução vale para todo o rendimento acumulado. O come-cotas não altera o líquido. Os valores vão até a última cota oficial. O gráfico mostra os últimos 12 meses; a tabela, todos.</p>
+    <p class="note">Cálculo pela cota oficial do fundo (CVM, Informe Diário), atualizada automaticamente duas vezes por dia. A CVM publica com 1 a 2 dias úteis de atraso; depois da última cota, o resultado é projetado pela taxa. Cota de fechamento D+0: a aplicação é cotizada no dia útil da data informada (ou no próximo, se cair em fim de semana ou feriado) e rende a partir do dia útil seguinte.</p>
+    <p class="note" id="regimeNote"></p>
+    <p class="note">Come-cotas: no último dia útil de maio e novembro o banco resgata cotas para pagar parte do IR (15% do rendimento no longo prazo, 20% no curto). O IR do resgate é a diferença para a alíquota da faixa. IOF regressivo só nos primeiros 30 dias.</p>
+    <p class="note">Ganho mês a mês: bruto é o que o fundo rendeu no período; líquido é quanto ele somou ao que você receberia num resgate, com o IR da faixa vigente. As explicações específicas de cada resultado aparecem logo abaixo da tabela.</p>
     <p class="note">Estimativa; o extrato do banco prevalece.</p>
   </details>
 </div>
 </main>
 
 <script>
+//#CALC-START
+// ===== Núcleo de cálculo: sem acesso à página, testado automaticamente no GitHub =====
 const CONF={P:410000,D0:"2026-08-04",refs:[["2026-11-03",423180.46,420214.86],["2026-11-04",423404.38,420388.40]]};
 const IOF=[96,93,90,86,83,80,76,73,70,66,63,60,56,53,50,46,43,40,36,33,30,26,23,20,16,13,10,6,3,0];
 const MC=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
 const ML=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
-const $=id=>document.getElementById(id);
+const REG={
+  lp:{cc:0.15,nome:"longo prazo",aliq:dc=>dc<=180?0.225:dc<=360?0.20:dc<=720?0.175:0.15},
+  cp:{cc:0.20,nome:"curto prazo",aliq:dc=>dc<=180?0.225:0.20}
+};
 const brl=n=>n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 const n2=n=>n.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
-const num=s=>parseFloat(String(s).replace(/\./g,"").replace(",","."));
+const pct=x=>(x*100).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";
 const pd=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
 const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const dbr=s=>s.split("-").reverse().join("/");
 const ddmm=s=>s.slice(8,10)+"/"+s.slice(5,7);
-const pct=x=>(x*100).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";
+
+// Entradas numéricas
+function numValor(s){const t=String(s).trim().replace(/\./g,"").replace(",",".");return /^\d+(\.\d+)?$/.test(t)?parseFloat(t):NaN}
+function numTaxa(s){const t=String(s).trim().replace(",",".");return /^\d+(\.\d+)?$/.test(t)?parseFloat(t):NaN} // aceita 12,5 e 12.5
 
 // Feriados nacionais (calendário ANBIMA), calculados para qualquer ano
 function easter(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;return new Date(y,mo-1,da)}
 const HC={};
 function hols(y){if(HC[y])return HC[y];const s=new Set(["01-01","04-21","05-01","09-07","10-12","11-02","11-15","11-20","12-25"].map(x=>y+"-"+x));const e=easter(y);[-48,-47,-2,60].forEach(o=>{const d=new Date(e);d.setDate(d.getDate()+o);s.add(iso(d))});return HC[y]=s}
 const isBD=d=>{const w=d.getDay();return w!==0&&w!==6&&!hols(d.getFullYear()).has(iso(d))};
-function bd(a,b){if(b<=a)return 0;let n=0;const c=new Date(a);while(true){c.setDate(c.getDate()+1);if(c>b)break;if(isBD(c))n++}return n}
+function bd(a,b){if(b<=a)return 0;let n=0;const c=new Date(a);for(;;){c.setDate(c.getDate()+1);if(c>b)break;if(isBD(c))n++}return n}
 function lastBD(y,m){const d=new Date(y,m,0);while(!isBD(d))d.setDate(d.getDate()-1);return d}
-const aliq=dc=>dc<=180?0.225:dc<=360?0.20:dc<=720?0.175:0.15;
+function nextBD(s){const d=pd(s);while(!isBD(d))d.setDate(d.getDate()+1);return iso(d)}
+function proximoCC(ref){const y0=+ref.slice(0,4);for(let y=y0;y<=y0+1;y++)for(const m of [5,11]){const c=iso(lastBD(y,m));if(c>ref)return c}}
 
-let Q={},D=[],LAST=null,lastRows=null;
+// Estado: cotas oficiais e regime tributário
+let Q={},D=[],LAST=null,REGIME="lp";
+
+// Carrega e valida as cotas. Devolve {erro} ou {avisos, regime, regimeFonte}
+function setCotas(j,hoje){
+  const src=j&&typeof j==="object"&&j.cotas&&typeof j.cotas==="object"?j.cotas:null;
+  if(!src)return {erro:"Arquivo de cotas em formato inválido."};
+  const av=[],q={};
+  for(const [d,v] of Object.entries(src)){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(d)||iso(pd(d))!==d){av.push("Data inválida ignorada: "+d+".");continue}
+    if(typeof v!=="number"||!isFinite(v)||v<=0){av.push("Cota inválida ignorada em "+dbr(d)+".");continue}
+    q[d]=v;
+  }
+  const ds=Object.keys(q).sort();
+  if(!ds.length)return {erro:"vazio"};
+  for(let i=1;i<ds.length;i++){
+    const gap=Math.round((pd(ds[i])-pd(ds[i-1]))/864e5);
+    if(gap>7)av.push("Há "+gap+" dias sem cota entre "+dbr(ds[i-1])+" e "+dbr(ds[i])+". Resultados nesse intervalo podem ficar imprecisos.");
+    const salto=Math.abs(q[ds[i]]/q[ds[i-1]]-1);
+    if(salto>0.01)av.push("Variação de "+pct(salto)+" em um dia ("+dbr(ds[i])+"), incomum para este fundo. Confira os dados.");
+  }
+  if(hoje){const n=bd(pd(ds[ds.length-1]),pd(hoje));if(n>4)av.push("A última cota oficial é de "+dbr(ds[ds.length-1])+" (há "+n+" dias úteis). A atualização automática pode ter falhado.")}
+  if(Array.isArray(j.avisos))j.avisos.slice(0,3).forEach(a=>av.push(String(a)));
+  Q=q;D=ds;LAST=ds[ds.length-1];
+  const t=j.tributacao;
+  REGIME=t&&t.longo_prazo===false?"cp":"lp";
+  return {avisos:av,regime:REGIME,regimeFonte:t&&typeof t.longo_prazo==="boolean"?"cvm":"assumido"};
+}
 
 function autoRate(){ // média dos últimos 21 dias úteis com cota
   const n=Math.min(21,D.length-1);if(n<1)return null;
   const a=D[D.length-1-n],b=D[D.length-1];
   return Math.pow(Q[b]/Q[a],1/bd(pd(a),pd(b)))-1;
 }
-// cota numa data: "app" = primeira cota >= data (aplicação); "pos" = última cota <= data (posição)
+// cota numa data: "app" = primeira cota >= data; "pos" = última cota <= data
 function qAt(s,modo,dr){
   if(s<D[0])return null;
   if(s<=LAST){
@@ -182,39 +227,50 @@ function qAt(s,modo,dr){
   }
   return {q:Q[LAST]*Math.pow(1+dr,bd(pd(LAST),pd(s))),real:false};
 }
+// s0 = data em que a aplicação é cotizada (use nextBD); s1 >= s0
 function simular(P,s0,s1,dr){
-  const a=qAt(s0,"app",dr),b=qAt(s1,"pos",dr);if(!a||!b)return null;
+  const R=REG[REGIME],a=qAt(s0,"app",dr),b=qAt(s1,"pos",dr);if(!a||!b)return null;
   let N=P/a.q,base=a.q,pago=0;
   const y0=+s0.slice(0,4),y1=+s1.slice(0,4);
   for(let y=y0;y<=y1;y++)for(const m of [5,11]){
     const c=iso(lastBD(y,m));if(c<=s0||c>s1)continue;
     const qc=qAt(c,"pos",dr).q,g=N*(qc-base);
-    if(g>0){const t=0.15*g;pago+=t;N-=t/qc;base=qc}
+    if(g>0){const t=R.cc*g;pago+=t;N-=t/qc;base=qc}
   }
   const bruto=N*b.q,dc=Math.round((pd(s1)-pd(s0))/864e5),ganho=bruto+pago-P;
   const iof=dc<30&&ganho>0?ganho*IOF[Math.max(dc,1)-1]/100:0;
-  const al=aliq(dc),irRes=Math.max(0,al*(ganho-iof)-pago);
+  const al=R.aliq(dc),irRes=Math.max(0,al*(ganho-iof)-pago);
   return {bruto,pago,iof,al,irRes,liq:bruto-iof-irRes,liqSemIof:bruto-Math.max(0,al*ganho-pago),dc,du:bd(pd(s0),pd(s1)),real:a.real&&b.real};
 }
 
-// Ganho mês a mês, só até a última cota oficial
-function mensal(P,s0,s1,dr){
-  const E=s1<LAST?s1:LAST;if(E<=s0)return null;
-  const rows=[];let pG=0,pL=0,skipped=false,y=+s0.slice(0,4),m=+s0.slice(5,7);
-  while(true){
-    const me=iso(new Date(y,m,0)),end=me<E?me:E;
-    let G=0,L=0;
-    if(end>s0){const r=simular(P,s0,end,dr);G=r.bruto+r.pago-P;L=r.liqSemIof-P} // IOF fica fora do mês a mês
-    let partEnd=false;
-    if(end<me){const c=pd(end),lim=pd(me);while(true){c.setDate(c.getDate()+1);if(c>lim)break;if(isBD(c)){partEnd=true;break}}}
-    if(rows.length===0&&!skipped&&G===0&&end===me&&end<E){skipped=true}
-    else rows.push({y,m,end,bruto:G-pG,liq:L-pL,base:P+pG,acc:L,partStart:rows.length===0&&!skipped,partEnd});
-    pG=G;pL=L;
-    if(end>=E)break;
+// Ganho mês a mês até s1 (meses depois da última cota oficial são projeção)
+function mensal(P,e0,s1,dr){
+  if(s1<=e0)return null;
+  const ends=[];let y=+e0.slice(0,4),m=+e0.slice(5,7);
+  for(;;){
+    const me=iso(new Date(y,m,0)),end=me<s1?me:s1;
+    if(end>e0){const prev=ends.length?ends[ends.length-1]:e0;if(prev<LAST&&LAST<end)ends.push(LAST);ends.push(end)}
+    if(end>=s1)break;
     m++;if(m>12){m=1;y++}
   }
-  return {rows,E,G:pG,L:pL};
+  const rows=[];let pG=0,pL=0,pEnd=e0,pAl=null,skipped=false;
+  ends.forEach(end=>{
+    const r=simular(P,e0,end,dr),G=r.bruto+r.pago-P,L=r.liqSemIof-P;
+    const yy=+end.slice(0,4),mm=+end.slice(5,7),me=iso(new Date(yy,mm,0));
+    let pEndPartial=false;
+    if(end<me){const c=pd(end),lim=pd(me);for(;;){c.setDate(c.getDate()+1);if(c>lim)break;if(isBD(c)){pEndPartial=true;break}}}
+    const first=rows.length===0&&!skipped;
+    if(first&&G===0&&end===me&&ends.length>1){skipped=true;pG=G;pL=L;pEnd=end;pAl=r.al;return}
+    rows.push({y:yy,m:mm,start:pEnd,end,bruto:G-pG,liq:L-pL,base:P+pG,acc:L,proj:pEnd>=LAST,pStart:first,pEnd:pEndPartial,
+      cut:pAl!==null&&r.al<pAl?{de:pAl,para:r.al}:null});
+    pG=G;pL=L;pEnd=end;pAl=r.al;
+  });
+  return {rows,G:pG,L:pL};
 }
+//#CALC-END
+
+const $=id=>document.getElementById(id);
+let lastRows=null;
 
 function drawChart(rows){
   const el=$("chart");if(!rows||!rows.length){el.innerHTML="";return}
@@ -224,78 +280,105 @@ function drawChart(rows){
   const mode=slot>=64?"full":slot>=40?"short":"none";
   let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Rendimento bruto por mês"><line class="axis" x1="0" y1="${top+ch}" x2="${W}" y2="${top+ch}"/>`;
   show.forEach((r,i)=>{
-    const cx=slot*(i+0.5),h=r.partEnd?Math.max(ch*Math.max(r.bruto,0)/max,10):Math.max(ch*Math.max(r.bruto,0)/max,r.bruto>0?3:0);
-    const yb=top+ch-h,cls=r.partEnd?"bar part":"bar";
-    s+=`<rect class="${cls}" x="${cx-bw/2}" y="${yb}" width="${bw}" height="${h}" rx="4"><title>${ML[r.m-1]}/${r.y}: bruto ${brl(r.bruto)}, líquido ${brl(r.liq)}</title></rect>`;
+    const cx=slot*(i+0.5),h=Math.max(ch*Math.max(r.bruto,0)/max,r.bruto>0?3:0),yb=top+ch-h;
+    s+=`<rect class="${r.proj?"bar proj":"bar"}" x="${cx-bw/2}" y="${yb}" width="${bw}" height="${h}" rx="4"><title>${ML[r.m-1]}/${r.y}${r.proj?" (projeção)":""}: bruto ${brl(r.bruto)}, líquido ${brl(r.liq)}</title></rect>`;
     if(mode!=="none"){
       const lab=mode==="full"?"R$ "+Math.round(r.bruto).toLocaleString("pt-BR"):(r.bruto/1000).toLocaleString("pt-BR",{maximumFractionDigits:1})+" mil";
       s+=`<text class="vl" x="${cx}" y="${yb-7}" text-anchor="middle">${lab}</text>`;
     }
-    s+=`<text class="ml" x="${cx}" y="${H-6}" text-anchor="middle">${MC[r.m-1]}${r.partStart||r.partEnd?"*":""}</text>`;
+    s+=`<text class="ml" x="${cx}" y="${H-6}" text-anchor="middle">${MC[r.m-1]}${r.pStart||r.pEnd?"*":""}${r.proj?"~":""}</text>`;
   });
   el.innerHTML=s+"</svg>";
 }
 
-function renderMensal(P,s0,s1,dr){
-  const res=mensal(P,s0,s1,dr);
-  if(!res||!res.rows.length){
-    lastRows=null;drawChart(null);$("mbody").innerHTML="";$("mfoot").innerHTML="";
-    $("mnote").textContent="Ainda não há cotas oficiais no período escolhido.";return;
-  }
-  const {rows,E}=res;lastRows=rows;drawChart(rows);
-  $("mbody").innerHTML=rows.map(r=>`<tr><td>${MC[r.m-1]}/${String(r.y).slice(2)}${r.partStart||r.partEnd?"*":""}</td><td>${n2(r.bruto)}</td><td class="liq">${n2(r.liq)}</td><td class="c-pct">${pct(r.bruto/r.base)}</td><td>${n2(r.acc)}</td></tr>`).join("");
+function limparMensal(msg){
+  lastRows=null;$("chart").innerHTML="";$("mbody").innerHTML="";$("mfoot").innerHTML="";
+  $("mnote").innerHTML=`<p>${msg}</p>`;
+}
+function erro(msg){$("out").innerHTML=`<span class="err">${msg}</span>`;limparMensal("Sem resultado: corrija os campos acima.")}
+
+function renderMensal(P,e0,s1,dr,r,taxa){
+  const res=mensal(P,e0,s1,dr);
+  if(!res||!res.rows.length){limparMensal("Sem dias de rendimento no período.");return}
+  const {rows}=res;lastRows=rows;drawChart(rows);
+  const tag=x=>MC[x.m-1]+"/"+String(x.y).slice(2)+(x.pStart||x.pEnd?"*":"")+(x.proj?"~":"")+(x.cut?"†":"");
+  $("mbody").innerHTML=rows.map(x=>`<tr class="${x.proj?"proj":""}"><td>${tag(x)}</td><td>${n2(x.bruto)}</td><td class="liq">${n2(x.liq)}</td><td class="c-pct">${pct(x.bruto/x.base)}</td><td>${n2(x.acc)}</td></tr>`).join("");
   $("mfoot").innerHTML=`<tr><td>Total</td><td>${n2(res.G)}</td><td class="liq">${n2(res.L)}</td><td class="c-pct">${pct(res.G/P)}</td><td></td></tr>`;
-  const f=rows[0],l=rows[rows.length-1],parts=[];
-  const fim=ddmm(E)+(E===LAST&&s1>LAST?" (última cota oficial)":"");
-  if(rows.length===1&&l.partEnd)parts.push(`${ML[f.m-1]} de ${ddmm(s0)} a ${fim}`);
-  else{
-    if(f.partStart)parts.push(`${ML[f.m-1]} desde ${ddmm(s0)}`);
-    if(l.partEnd)parts.push(`${ML[l.m-1]} até ${fim}`);
-  }
-  let txt=parts.length?`* Mês parcial: ${parts.join("; ")}.`:"";
-  if(s1>LAST)txt+=(txt?" ":"")+"O resultado acima inclui projeção após a última cota; esta tabela, não.";
-  $("mnote").textContent=txt;
+  const notes=[];
+  const porMes=new Map();
+  rows.forEach(x=>{const k=x.y+"-"+x.m,g=porMes.get(k)||{m:x.m,ini:false,fim:null};if(x.pStart)g.ini=true;g.fim=x.pEnd?x.end:null;porMes.set(k,g)});
+  const parc=[...porMes.values()].filter(g=>g.ini||g.fim).map(g=>g.ini&&g.fim?`${ML[g.m-1]} de ${ddmm(e0)} a ${ddmm(g.fim)}`:g.ini?`${ML[g.m-1]} desde ${ddmm(e0)}`:`${ML[g.m-1]} até ${ddmm(g.fim)}`);
+  if(parc.length)notes.push(`* Mês parcial: ${parc.join("; ")}.`);
+  if(rows.some(x=>x.proj))notes.push(`~ Projeção: depois da última cota oficial (${ddmm(LAST)}), à taxa de ${taxa} Por isso o total fecha com o resultado ao lado.`);
+  const cut=rows.filter(x=>x.cut)[0];
+  if(cut)notes.push(`† Em ${ML[cut.m-1]}/${cut.y} a faixa de IR cai de ${(cut.cut.de*100).toLocaleString("pt-BR",{maximumFractionDigits:1})}% para ${(cut.cut.para*100).toLocaleString("pt-BR",{maximumFractionDigits:1})}%. A nova alíquota vale sobre todo o rendimento acumulado, por isso o líquido do mês sobe mais que o bruto.`);
+  if(r.pago>0)notes.push(`O bruto da tabela é o rendimento antes do come-cotas: saldo bruto do card ${brl(r.bruto)} − aplicado ${brl(P)} + come-cotas ${brl(r.pago)} = ${brl(r.bruto-P+r.pago)}.`);
+  if(r.iof>0)notes.push(`O líquido ao lado desconta IOF de ${brl(r.iof)}; a tabela não inclui IOF.`);
+  $("mnote").innerHTML=notes.map(t=>`<p>${t}</p>`).join("");
 }
 
 function render(){
   if(!LAST)return;
-  let dr=autoRate();const tv=$("t").value.trim();
-  const manual=tv!==""&&!isNaN(num(tv));
-  if(manual)dr=Math.pow(1+num(tv)/100,1/252)-1;
+  let dr=autoRate();if(dr===null)dr=0.0005;
+  const tv=$("t").value.trim();let manual=false,taxaInv=false;
+  if(tv!==""){const x=numTaxa(tv);if(!isNaN(x)&&x<=100){dr=Math.pow(1+x/100,1/252)-1;manual=true}else taxaInv=true}
   const taxa=pct(Math.pow(1+dr,252)-1)+" a.a.";
-  $("rateSum").textContent=(manual?"informada: ":"automática: ")+taxa;
-  $("tnote").textContent=(manual?"Informada: ":"Automática (média dos últimos 21 dias úteis): ")+taxa+"; usada só depois de "+dbr(LAST)+".";
-  const P=num($("v").value),s0=$("d0").value,s1=$("d1").value;
-  if(!s0||!s1||isNaN(P)){$("out").innerHTML='<span class="err">Preencha valor e datas.</span>';return}
-  if(s1<=s0){$("out").innerHTML='<span class="err">A data final deve ser posterior à aplicação.</span>';return}
-  const r=simular(P,s0,s1,dr);
-  if(!r){$("out").innerHTML=`<span class="err">A série começa em ${dbr(D[0])}. Use uma aplicação a partir dessa data.</span>`;return}
+  $("rateSum").textContent=taxaInv?"taxa inválida; usando a automática":(manual?"informada: ":"automática: ")+taxa;
+  $("rateSum").classList.toggle("bad",taxaInv);
+  $("tnote").textContent=taxaInv?"Valor inválido. Use um número de 0 a 100, com vírgula ou ponto (ex.: 12,5). Usando a automática: "+taxa+".":(manual?"Informada: ":"Automática (média dos últimos 21 dias úteis): ")+taxa+"; usada só depois de "+dbr(LAST)+".";
+
+  const P=numValor($("v").value),s0=$("d0").value,s1=$("d1").value;
+  if(!(P>0))return erro("Informe um valor aplicado maior que zero.");
+  if(!s0||!s1||isNaN(pd(s0).getTime())||isNaN(pd(s1).getTime()))return erro("Informe datas válidas.");
+  if(s0>"2035-12-31"||s1>"2035-12-31")return erro("Use datas até 31/12/2035.");
+  const e0=nextBD(s0);
+  if(e0<D[0])return erro(`A série de cotas começa em ${dbr(D[0])}. Use uma aplicação a partir dessa data.`);
+  if(s1<e0)return erro(`A aplicação é cotizada em ${dbr(e0)}${e0!==s0?" (próximo dia útil)":""}. Escolha uma posição a partir dessa data.`);
+  const r=simular(P,e0,s1,dr);
   try{localStorage.setItem("megadi",JSON.stringify({v:$("v").value,d0:s0}))}catch(e){}
   const tag=r.real?`<span class="tag real">cota oficial</span>`:`<span class="tag proj">real até ${dbr(LAST)}, depois projeção</span>`;
   $("out").innerHTML=
    `<div><span>Origem</span>${tag}</div>
+    ${e0!==s0?`<div><span>Aplicação cotizada em</span><b>${dbr(e0)} (próximo dia útil)</b></div>`:""}
     <div><span>Dias corridos / úteis</span><b>${r.dc} / ${r.du}</b></div>
     <div><span>Saldo bruto</span><b>${brl(r.bruto)}</b></div>
     ${r.pago>0?`<div><span>Come-cotas já descontado</span><b>${brl(r.pago)}</b></div>`:""}
     ${r.iof>0?`<div><span>IOF</span><b>${brl(r.iof)}</b></div>`:""}
     <div><span>IR no resgate (${(r.al*100).toLocaleString("pt-BR",{maximumFractionDigits:1})}%${r.pago>0?", descontado o come-cotas":""})</span><b>${brl(r.irRes)}</b></div>
     <div><span>Saldo líquido</span><b class="big">${brl(r.liq)}</b></div>
-    <div><span>Rentabilidade líquida no período</span><b>${pct(r.liq/P-1)}</b></div>`;
-  renderMensal(P,s0,s1,dr);
+    <div><span>Rentabilidade líquida no período</span><b>${pct(r.liq/P-1)}</b></div>
+    ${REGIME==="cp"?`<div><span>Regime tributário</span><b>curto prazo (cadastro CVM)</b></div>`:""}`;
+  renderMensal(P,e0,s1,dr,r,taxa);
 }
 
 function conferencia(){
-  const res=CONF.refs.filter(([d])=>d<=LAST&&Q[d]&&Q[CONF.D0]).map(([d,b,l])=>{
-    const r=simular(CONF.P,CONF.D0,d,0);return {d,b,l,r,ok:Math.abs(r.bruto-b)<1}});
-  const btn=$("confBtn");
-  if(!res.length){btn.hidden=true;return}
-  const ok=res.every(x=>x.ok);
-  btn.hidden=false;btn.classList.toggle("bad",!ok);
-  btn.textContent=ok?"✓ Confere com o app ›":"⚠ Não confere com o app ›";
-  $("confBox").innerHTML=`<p><b>Conferência com o app da CAIXA</b> (R$ 410.000 aplicados em 04/08/2026)</p>`+res.map(x=>
-    `<p class="${x.ok?"okc":"bad"}">${dbr(x.d)}: bruto ${brl(x.r.bruto)} x app ${brl(x.b)}; líquido ${brl(x.r.liq)} x app ${brl(x.l)} ${x.ok?"✓":"✗ confira o CNPJ no script"}</p>`).join("");
+  const btn=$("confBtn"),box=$("confBox");
+  const refs=CONF.refs.filter(([d])=>d<=LAST&&Q[d]&&Q[CONF.D0]);
+  if(!refs.length){btn.hidden=true;box.hidden=true;return}
+  const res=refs.map(([d,b,l])=>{const r=simular(CONF.P,CONF.D0,d,0);return {d,b,l,r,db:r.bruto-b,dl:r.liq-l}});
+  const ok=res.every(x=>Math.abs(x.db)<1&&Math.abs(x.dl)<1);
+  const ultima=refs[refs.length-1][0],cc=proximoCC(ultima),alem=LAST>=cc;
+  const dif=v=>(v>=0?"+":"−")+brl(Math.abs(v));
+  const lin=res.map(x=>`<p class="${Math.abs(x.db)<1&&Math.abs(x.dl)<1?"okc":"bad"}">${dbr(x.d)}: bruto ${brl(x.r.bruto)} (app ${brl(x.b)}; dif. ${dif(x.db)}) · líquido ${brl(x.r.liq)} (app ${brl(x.l)}; dif. ${dif(x.dl)})</p>`).join("");
+  btn.hidden=false;btn.classList.remove("bad","neu");
+  if(!ok){
+    btn.classList.add("bad");btn.textContent="⚠ Não confere com o app ›";
+    box.innerHTML=`<p><b>O cálculo diverge do app da CAIXA</b> (R$ 410.000 aplicados em 04/08/2026)</p>${lin}<p class="bad">Diferença acima de R$ 1,00. Confira o CNPJ e o regime tributário no script.</p>`;
+  }else if(!alem){
+    btn.textContent="✓ Conferido com o app até "+ddmm(ultima)+" ›";
+    box.innerHTML=`<p><b>${res.length} conferências com o app da CAIXA</b> (R$ 410.000 aplicados em 04/08/2026): bruto e líquido dentro de R$ 1,00.</p>${lin}<p>Estas conferências são anteriores ao primeiro come-cotas (${dbr(cc)}). O selo muda sozinho depois dessa data.</p>`;
+  }else{
+    btn.classList.add("neu");btn.textContent="Come-cotas sem conferência com o app ›";
+    box.innerHTML=`<p><b>Conferências com o app, todas anteriores ao come-cotas de ${dbr(cc)}</b></p>${lin}<p>Depois dessa data o cálculo segue a regra legal (${(REG[REGIME].cc*100).toFixed(0)}% do rendimento, regime de ${REG[REGIME].nome}), sem comparação com o saldo do banco. Não há fonte automática para o saldo pessoal.</p>`;
+  }
 }
 $("confBtn").addEventListener("click",()=>{const b=$("confBox"),open=b.hidden;b.hidden=!open;$("confBtn").setAttribute("aria-expanded",String(open))});
+
+function renderAlert(av){
+  const el=$("alert");
+  if(!av||!av.length){el.hidden=true;return}
+  el.hidden=false;el.innerHTML=av.slice(0,4).map(t=>`<p>⚠ ${t}</p>`).join("")+(av.length>4?`<p>… e mais ${av.length-4} aviso(s).</p>`:"");
+}
 
 function mask(el){
   const pos=el.selectionStart??el.value.length,before=el.value.slice(0,pos).replace(/[^\d,]/g,"").length;
@@ -316,12 +399,14 @@ $("v").addEventListener("blur",()=>{pad($("v"));render()});
 let rz;window.addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>drawChart(lastRows),120)});
 
 fetch("cotas.json?t="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(j=>{
-  Q=j.cotas||{};D=Object.keys(Q).sort();
-  if(!D.length){$("status").textContent="Ainda sem cotas. Rode o workflow “Atualizar cotas” no GitHub.";return}
-  LAST=D[D.length-1];
+  const v=setCotas(j,iso(new Date()));
+  if(v.erro){$("status").textContent=v.erro==="vazio"?"Ainda sem cotas. Rode o workflow “Atualizar cotas” no GitHub.":v.erro;return}
   $("status").textContent=`Última cota oficial: ${dbr(LAST)} · atualizado em ${dbr((j.atualizado_em||"").slice(0,10))} ${(j.atualizado_em||"").slice(11)}`;
+  $("regimeNote").textContent=`Regime tributário usado: ${REG[v.regime].nome} (${v.regimeFonte==="cvm"?"lido do cadastro da CVM":"assumido, conforme a página da CAIXA para este fundo; o cadastro da CVM não informou"}).`;
+  renderAlert(v.avisos);
   render();conferencia();
 }).catch(()=>{$("status").textContent="Não foi possível carregar cotas.json."});
 </script>
 </body>
 </html>
+
