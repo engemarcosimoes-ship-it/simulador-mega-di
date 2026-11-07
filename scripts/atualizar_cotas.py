@@ -1,6 +1,6 @@
 """Baixa a cota diária do fundo CAIXA Mega DI RF nos Dados Abertos da CVM
 e grava em docs/cotas.json. Usa só a biblioteca padrão do Python."""
-import csv, io, json, os, re, sys, time, zipfile, urllib.request, urllib.error
+import csv, io, json, os, re, sys, time, unicodedata, zipfile, urllib.request, urllib.error
 from datetime import datetime, timedelta, timezone
 
 CNPJ = "10322633000170"          # CAIXA Mega DI RF (troque aqui se a validação não conferir)
@@ -12,6 +12,14 @@ URL_ANO = "https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/HIST/inf_diari
 CONFERENCIA = ("2026-08-04", 410000.00, {"2026-11-03": 423180.46, "2026-11-04": 423404.38})
 
 BRT = timezone(timedelta(hours=-3))
+
+# Cadastro da CVM: tenta ler se o fundo tem tributação de longo prazo (S/N).
+# Os nomes de colunas não foram confirmados; a busca é tolerante e, se falhar,
+# a página assume longo prazo (conforme a página da CAIXA para este fundo).
+URLS_CAD = [
+    ("https://dados.cvm.gov.br/dados/FI/CAD/DADOS/registro_fundo_classe.zip", "zip"),
+    ("https://dados.cvm.gov.br/dados/FI/CAD/DADOS/cad_fi.csv", "csv"),
+]
 
 
 def baixar(url):
@@ -58,6 +66,61 @@ def extrair(conteudo_zip):
                     if cota > 0:
                         achados[data] = cota
     return achados
+
+
+def _norm(txt):
+    return "".join(c for c in unicodedata.normalize("NFKD", txt) if not unicodedata.combining(c)).upper().strip()
+
+
+def ler_tributacao():
+    """Devolve {'longo_prazo': True/False/None, 'fonte': url, 'campo': coluna}. Nunca levanta erro."""
+    for url, tipo in URLS_CAD:
+        try:
+            conteudo = baixar(url)
+            if conteudo is None:
+                print("  cadastro não encontrado:", url)
+                continue
+            fontes = []
+            if tipo == "zip":
+                with zipfile.ZipFile(io.BytesIO(conteudo)) as z:
+                    fontes = [(n, z.read(n)) for n in z.namelist() if n.lower().endswith(".csv")]
+            else:
+                fontes = [(url.rsplit("/", 1)[1], conteudo)]
+            for nome, raw in fontes:
+                leitor = csv.reader(io.StringIO(raw.decode("latin-1")), delimiter=";")
+                cab_orig = [c.strip() for c in next(leitor)]
+                cab = [_norm(c) for c in cab_orig]
+                i_cnpj = next((i for i, c in enumerate(cab) if "CNPJ" in c), None)
+                i_trib = next((i for i, c in enumerate(cab) if re.search(r"TRIB.*(LONGO|LPRAZO)|LONGO.*PRAZO", c)), None)
+                if i_cnpj is None or i_trib is None:
+                    continue
+                valores = set()
+                for lin in leitor:
+                    if len(lin) <= max(i_cnpj, i_trib) or re.sub(r"\D", "", lin[i_cnpj]) != CNPJ:
+                        continue
+                    v = _norm(lin[i_trib])
+                    if v in ("S", "SIM", "TRUE", "1"):
+                        valores.add(True)
+                    elif v in ("N", "NAO", "FALSE", "0"):
+                        valores.add(False)
+                if len(valores) == 1:
+                    res = {"longo_prazo": valores.pop(), "fonte": url, "campo": cab_orig[i_trib]}
+                    print(f"Tributação CVM: {res['campo']} = {res['longo_prazo']} ({nome})")
+                    return res
+        except Exception as e:  # cadastro é opcional
+            print("  aviso: não foi possível ler o cadastro da CVM:", e)
+    print("Tributação CVM: não encontrada; a página assumirá longo prazo.")
+    return {"longo_prazo": None, "fonte": None, "campo": None}
+
+
+def avisos_de_lacuna(cotas):
+    datas = sorted(cotas)
+    av = []
+    for a, b in zip(datas, datas[1:]):
+        dias = (datetime.strptime(b, "%Y-%m-%d") - datetime.strptime(a, "%Y-%m-%d")).days
+        if dias > 7:
+            av.append(f"Há {dias} dias sem cota entre {a[8:]}/{a[5:7]} e {b[8:]}/{b[5:7]}.")
+    return av
 
 
 def meses(de, ate):
@@ -110,8 +173,12 @@ def main():
         "fonte": "CVM - Dados Abertos - Informe Diário",
         "atualizado_em": hoje.strftime("%Y-%m-%d %H:%M"),
         "ultima_data": max(cotas),
+        "tributacao": ler_tributacao(),
+        "avisos": avisos_de_lacuna(cotas),
         "cotas": cotas,
     }
+    for a in saida["avisos"]:
+        print("::warning::" + a)
     os.makedirs(os.path.dirname(SAIDA), exist_ok=True)
     with open(SAIDA, "w", encoding="utf-8") as f:
         json.dump(saida, f, ensure_ascii=False, indent=1)
