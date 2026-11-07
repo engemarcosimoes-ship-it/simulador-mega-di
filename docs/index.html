@@ -6,22 +6,53 @@
 <title>Simulador Mega DI RF</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧮</text></svg>">
 <style>
-:root{--bg:#f6f7f9;--card:#ffffff;--tx:#14202e;--mut:#5d6b7a;--line:#d9dee5;--acc:#0b4f8a;--ok:#1b7a43;--warn:#a15c00;color-scheme:light;
+:root{--bg:#f6f7f9;--card:#ffffff;--tx:#14202e;--mut:#5d6b7a;--line:#d9dee5;--soft:#eef1f4;--acc:#0b4f8a;--ok:#1b7a43;--warn:#a15c00;color-scheme:light;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root{--bg:#10161d;--card:#18212b;--tx:#e8edf2;--mut:#93a1b0;--line:#2b3846;--acc:#6db3f2;--ok:#5fd08a;--warn:#f0b35a;color-scheme:dark}}
+@media (prefers-color-scheme:dark){:root{--bg:#10161d;--card:#18212b;--tx:#e8edf2;--mut:#93a1b0;--line:#2b3846;--soft:#222d38;--acc:#6db3f2;--ok:#5fd08a;--warn:#f0b35a;color-scheme:dark}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 main{max-width:560px;margin:0 auto;padding:16px}
-h1{font-size:20px;margin:4px 0 2px}
-h2{font-size:15px;margin:0 0 6px}
-.sub{color:var(--mut);font-size:13px;margin:0 0 14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+@media (min-width:600px){main{max-width:900px;padding:20px}}
+@media (min-width:1024px){main{max-width:1180px;padding:24px}}
+
+/* Cabeçalho */
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:8px 16px;margin-bottom:12px}
+h1{font-size:20px;margin:2px 0}
+.sub{color:var(--mut);font-size:13px;margin:0}
+.badge{font:inherit;font-size:13px;font-weight:600;color:var(--ok);background:var(--card);border:1px solid var(--ok);border-radius:999px;padding:5px 14px;cursor:pointer}
+.badge.bad{color:var(--warn);border-color:var(--warn)}
+.badge:focus-visible,summary:focus-visible,input:focus{outline:2px solid var(--acc);outline-offset:2px}
+.confbox{margin-bottom:12px;font-size:13.5px}
+.confbox p{margin:4px 0}
+.okc{color:var(--ok)} .bad{color:var(--warn)}
+
+/* Grade responsiva */
+.grid{display:grid;gap:12px;grid-template-columns:minmax(0,1fr);grid-template-areas:"inp" "res" "mon" "calc";align-items:start}
+@media (min-width:600px){.grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto 1fr auto;grid-template-areas:"inp res" "calc res" "mon mon"}}
+@media (min-width:1024px){.grid{grid-template-columns:440px minmax(0,1fr);grid-template-rows:auto auto 1fr;grid-template-areas:"inp mon" "res mon" "calc mon"}}
+.a-inp{grid-area:inp}.a-res{grid-area:res}.a-mon{grid-area:mon}.a-calc{grid-area:calc}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
 label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
-label:first-child{margin-top:0}
-input{width:100%;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px}
-input:focus{outline:2px solid var(--acc);outline-offset:1px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.res div{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+label.first{margin-top:0}
+input{width:100%;min-width:0;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.row>div{min-width:0;display:flex;flex-direction:column;justify-content:flex-end}
+
+/* Recolhíveis */
+details>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+details>summary::-webkit-details-marker{display:none}
+.sumt{color:var(--acc);font-weight:600;font-size:14px}
+.sumt::before{content:"›";display:inline-block;width:14px;transition:transform .15s}
+details[open] .sumt::before{transform:rotate(90deg)}
+.sumh{color:var(--mut);font-size:12.5px;text-align:right}
+.proj{border-top:1px solid var(--line);margin-top:14px;padding-top:12px}
+.note{font-size:12.5px;color:var(--mut);margin:8px 0 0}
+.calc .note:first-of-type{margin-top:10px}
+@media (prefers-reduced-motion:reduce){.sumt::before{transition:none}}
+
+/* Resultado */
+.res div{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
 .res div:last-child{border-bottom:0}
 .res span:first-child{color:var(--mut)}
 .res b{font-variant-numeric:tabular-nums;text-align:right}
@@ -29,46 +60,100 @@ input:focus{outline:2px solid var(--acc);outline-offset:1px}
 .tag{font-size:12.5px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--mut);text-align:right}
 .tag.real{color:var(--ok);border-color:var(--ok)}
 .tag.proj{color:var(--warn);border-color:var(--warn)}
-.note{font-size:12.5px;color:var(--mut);margin-top:6px}
 .err{color:var(--warn);font-size:14px}
-.chk{font-size:13.5px}
-.chk p{margin:4px 0}
-.okc{color:var(--ok)} .bad{color:var(--warn)}
+
+/* Ganho mês a mês */
+.mon h2{font-size:17px;margin:0}
+.mon .s1{font-size:13px;color:var(--mut);margin:2px 0 0}
+.mon .s2{font-size:12.5px;color:var(--mut);margin:2px 0 6px}
+#chart svg{display:block;width:100%;height:auto}
+.bar{fill:var(--acc)}
+.bar.part{fill:var(--card);stroke:var(--acc);stroke-width:1.5;stroke-dasharray:4 3}
+.vl{fill:var(--tx);font-size:11.5px;font-weight:600}
+.ml{fill:var(--mut);font-size:12px}
+.axis{stroke:var(--line)}
+.tw{overflow-x:auto;margin-top:8px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:14px}
+th{font-size:12.5px;color:var(--mut);font-weight:600;text-align:right;padding:6px 0 6px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{text-align:right;padding:7px 0 7px 10px;border-bottom:1px solid var(--soft);white-space:nowrap}
+th:first-child,td:first-child{text-align:left;padding-left:0}
+td.liq{color:var(--acc);font-weight:600}
+tfoot td{font-weight:700;border-top:1px solid var(--tx);border-bottom:0;padding-top:9px}
+tfoot td.liq{color:var(--ok)}
+tbody tr:last-child td{border-bottom:0}
+@media (max-width:429px){.c-pct{display:none}}
+@media (max-width:379px){table{font-size:13px}th{font-size:12px}th,td{padding-left:6px}.calc .sumh{display:none}.card{padding:12px 12px}}
+@media (max-width:339px){table{font-size:12px}th,td{padding-left:4px!important}}
+@media (min-width:600px){table{font-size:14.5px}}
 </style>
 </head>
 <body>
 <main>
-<h1>Simulador Mega DI RF (CAIXA)</h1>
-<p class="sub" id="status">Carregando cotas…</p>
-
-<div class="card">
-  <label for="v">Valor aplicado (R$)</label>
-  <input id="v" inputmode="decimal" value="410.000,00">
-  <div class="row">
-    <div><label for="d0">Data da aplicação</label><input id="d0" type="date" value="2026-08-04"></div>
-    <div><label for="d1">Data do resgate / posição</label><input id="d1" type="date"></div>
+<header class="top">
+  <div>
+    <h1>Simulador Mega DI RF (CAIXA)</h1>
+    <p class="sub" id="status">Carregando cotas…</p>
   </div>
-  <label for="t">Taxa de projeção, % a.a. base 252 (vazio = automática)</label>
-  <input id="t" inputmode="decimal" placeholder="automática">
-  <p class="note" id="tnote"></p>
+  <button type="button" class="badge" id="confBtn" hidden aria-expanded="false" aria-controls="confBox"></button>
+</header>
+<div class="card confbox" id="confBox" hidden></div>
+
+<div class="grid">
+  <section class="card a-inp">
+    <label class="first" for="v">Valor aplicado (R$)</label>
+    <input id="v" inputmode="decimal" value="410.000,00">
+    <div class="row">
+      <div><label for="d0">Data da aplicação</label><input id="d0" type="date" value="2026-08-04"></div>
+      <div><label for="d1">Data do resgate / posição</label><input id="d1" type="date"></div>
+    </div>
+    <details class="proj">
+      <summary><span class="sumt">Ajustar projeção</span><span class="sumh" id="rateSum"></span></summary>
+      <label for="t">Taxa de projeção, % a.a. base 252 (vazio = automática)</label>
+      <input id="t" inputmode="decimal" placeholder="automática">
+      <p class="note" id="tnote"></p>
+    </details>
+  </section>
+
+  <section class="card res a-res" id="out"></section>
+
+  <section class="card mon a-mon" id="mon">
+    <h2>Ganho mês a mês</h2>
+    <p class="s1">Quanto rendeu em cada mês, em R$, sem o valor aplicado</p>
+    <p class="s2">Barras: rendimento bruto do mês</p>
+    <div id="chart"></div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Mês</th><th>Bruto</th><th>Líquido</th><th class="c-pct">% mês</th><th>Líq. acum.</th></tr></thead>
+        <tbody id="mbody"></tbody>
+        <tfoot id="mfoot"></tfoot>
+      </table>
+    </div>
+    <p class="note" id="mnote"></p>
+  </section>
+
+  <details class="card calc a-calc">
+    <summary><span class="sumt">Como é calculado</span><span class="sumh">fonte, IR, come-cotas, IOF</span></summary>
+    <p class="note">Cálculo pela cota oficial do fundo (CVM, Informe Diário), atualizada automaticamente duas vezes por dia. A CVM publica com 1 a 2 dias úteis de atraso; os dias depois da última cota são projetados pela taxa. Cota de fechamento D+0: rende a partir do dia útil seguinte à aplicação.</p>
+    <p class="note">IR regressivo (longo prazo): 22,5% até 180 dias corridos, 20% de 181 a 360, 17,5% de 361 a 720, 15% acima. Come-cotas de 15% no último dia útil de maio e novembro, descontado em cotas, como no app; o IR do resgate é a diferença. IOF regressivo só nos primeiros 30 dias.</p>
+    <p class="note">Ganho mês a mês: bruto é o que o fundo rendeu no mês. Líquido é quanto o mês somou ao que você receberia num resgate, já com o IR da faixa vigente. No mês em que a faixa de IR cai, o líquido sobe mais, porque a redução vale para todo o rendimento acumulado. O come-cotas não altera o líquido. Os valores vão até a última cota oficial. O gráfico mostra os últimos 12 meses; a tabela, todos.</p>
+    <p class="note">Estimativa; o extrato do banco prevalece.</p>
+  </details>
 </div>
-
-<div class="card res" id="out"></div>
-
-<div class="card chk" id="chk"></div>
-
-<p class="note">Cálculo pela cota oficial do fundo (CVM, Informe Diário), atualizada automaticamente duas vezes por dia. A CVM publica com 1 a 2 dias úteis de atraso; os dias depois da última cota são projetados pela taxa. Cota de fechamento D+0: rende a partir do dia útil seguinte à aplicação. IR regressivo (longo prazo): 22,5% até 180 dias corridos, 20% de 181 a 360, 17,5% de 361 a 720, 15% acima. Come-cotas de 15% no último dia útil de maio e novembro, descontado em cotas, como no app; o IR do resgate é a diferença. IOF regressivo só nos primeiros 30 dias. Estimativa; o extrato do banco prevalece.</p>
 </main>
 
 <script>
 const CONF={P:410000,D0:"2026-08-04",refs:[["2026-11-03",423180.46,420214.86],["2026-11-04",423404.38,420388.40]]};
 const IOF=[96,93,90,86,83,80,76,73,70,66,63,60,56,53,50,46,43,40,36,33,30,26,23,20,16,13,10,6,3,0];
+const MC=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const ML=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
 const $=id=>document.getElementById(id);
 const brl=n=>n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const n2=n=>n.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
 const num=s=>parseFloat(String(s).replace(/\./g,"").replace(",","."));
 const pd=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
 const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const dbr=s=>s.split("-").reverse().join("/");
+const ddmm=s=>s.slice(8,10)+"/"+s.slice(5,7);
 const pct=x=>(x*100).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";
 
 // Feriados nacionais (calendário ANBIMA), calculados para qualquer ano
@@ -80,10 +165,10 @@ function bd(a,b){if(b<=a)return 0;let n=0;const c=new Date(a);while(true){c.setD
 function lastBD(y,m){const d=new Date(y,m,0);while(!isBD(d))d.setDate(d.getDate()-1);return d}
 const aliq=dc=>dc<=180?0.225:dc<=360?0.20:dc<=720?0.175:0.15;
 
-let Q={},D=[],LAST=null;
+let Q={},D=[],LAST=null,lastRows=null;
 
 function autoRate(){ // média dos últimos 21 dias úteis com cota
-  const n=Math.min(21,D.length-1); if(n<1)return null;
+  const n=Math.min(21,D.length-1);if(n<1)return null;
   const a=D[D.length-1-n],b=D[D.length-1];
   return Math.pow(Q[b]/Q[a],1/bd(pd(a),pd(b)))-1;
 }
@@ -98,25 +183,88 @@ function qAt(s,modo,dr){
   return {q:Q[LAST]*Math.pow(1+dr,bd(pd(LAST),pd(s))),real:false};
 }
 function simular(P,s0,s1,dr){
-  const a=qAt(s0,"app",dr),b=qAt(s1,"pos",dr); if(!a||!b)return null;
+  const a=qAt(s0,"app",dr),b=qAt(s1,"pos",dr);if(!a||!b)return null;
   let N=P/a.q,base=a.q,pago=0;
   const y0=+s0.slice(0,4),y1=+s1.slice(0,4);
   for(let y=y0;y<=y1;y++)for(const m of [5,11]){
-    const c=iso(lastBD(y,m)); if(c<=s0||c>s1)continue;
-    const qc=qAt(c,"pos",dr).q, g=N*(qc-base);
+    const c=iso(lastBD(y,m));if(c<=s0||c>s1)continue;
+    const qc=qAt(c,"pos",dr).q,g=N*(qc-base);
     if(g>0){const t=0.15*g;pago+=t;N-=t/qc;base=qc}
   }
-  const bruto=N*b.q, dc=Math.round((pd(s1)-pd(s0))/864e5), ganho=bruto+pago-P;
+  const bruto=N*b.q,dc=Math.round((pd(s1)-pd(s0))/864e5),ganho=bruto+pago-P;
   const iof=dc<30&&ganho>0?ganho*IOF[Math.max(dc,1)-1]/100:0;
-  const al=aliq(dc), irRes=Math.max(0,al*(ganho-iof)-pago);
-  return {bruto,pago,iof,al,irRes,liq:bruto-iof-irRes,dc,du:bd(pd(s0),pd(s1)),real:a.real&&b.real,q0:a.q,q1:b.q};
+  const al=aliq(dc),irRes=Math.max(0,al*(ganho-iof)-pago);
+  return {bruto,pago,iof,al,irRes,liq:bruto-iof-irRes,liqSemIof:bruto-Math.max(0,al*ganho-pago),dc,du:bd(pd(s0),pd(s1)),real:a.real&&b.real};
+}
+
+// Ganho mês a mês, só até a última cota oficial
+function mensal(P,s0,s1,dr){
+  const E=s1<LAST?s1:LAST;if(E<=s0)return null;
+  const rows=[];let pG=0,pL=0,skipped=false,y=+s0.slice(0,4),m=+s0.slice(5,7);
+  while(true){
+    const me=iso(new Date(y,m,0)),end=me<E?me:E;
+    let G=0,L=0;
+    if(end>s0){const r=simular(P,s0,end,dr);G=r.bruto+r.pago-P;L=r.liqSemIof-P} // IOF fica fora do mês a mês
+    let partEnd=false;
+    if(end<me){const c=pd(end),lim=pd(me);while(true){c.setDate(c.getDate()+1);if(c>lim)break;if(isBD(c)){partEnd=true;break}}}
+    if(rows.length===0&&!skipped&&G===0&&end===me&&end<E){skipped=true}
+    else rows.push({y,m,end,bruto:G-pG,liq:L-pL,base:P+pG,acc:L,partStart:rows.length===0&&!skipped,partEnd});
+    pG=G;pL=L;
+    if(end>=E)break;
+    m++;if(m>12){m=1;y++}
+  }
+  return {rows,E,G:pG,L:pL};
+}
+
+function drawChart(rows){
+  const el=$("chart");if(!rows||!rows.length){el.innerHTML="";return}
+  const W=Math.max(el.clientWidth||320,240),H=176,top=24,bot=26,ch=H-top-bot;
+  const show=rows.slice(-12),n=show.length,slot=W/n,bw=Math.min(46,slot*0.62);
+  const max=Math.max(...show.map(r=>r.bruto),1);
+  const mode=slot>=64?"full":slot>=40?"short":"none";
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Rendimento bruto por mês"><line class="axis" x1="0" y1="${top+ch}" x2="${W}" y2="${top+ch}"/>`;
+  show.forEach((r,i)=>{
+    const cx=slot*(i+0.5),h=r.partEnd?Math.max(ch*Math.max(r.bruto,0)/max,10):Math.max(ch*Math.max(r.bruto,0)/max,r.bruto>0?3:0);
+    const yb=top+ch-h,cls=r.partEnd?"bar part":"bar";
+    s+=`<rect class="${cls}" x="${cx-bw/2}" y="${yb}" width="${bw}" height="${h}" rx="4"><title>${ML[r.m-1]}/${r.y}: bruto ${brl(r.bruto)}, líquido ${brl(r.liq)}</title></rect>`;
+    if(mode!=="none"){
+      const lab=mode==="full"?"R$ "+Math.round(r.bruto).toLocaleString("pt-BR"):(r.bruto/1000).toLocaleString("pt-BR",{maximumFractionDigits:1})+" mil";
+      s+=`<text class="vl" x="${cx}" y="${yb-7}" text-anchor="middle">${lab}</text>`;
+    }
+    s+=`<text class="ml" x="${cx}" y="${H-6}" text-anchor="middle">${MC[r.m-1]}${r.partStart||r.partEnd?"*":""}</text>`;
+  });
+  el.innerHTML=s+"</svg>";
+}
+
+function renderMensal(P,s0,s1,dr){
+  const res=mensal(P,s0,s1,dr);
+  if(!res||!res.rows.length){
+    lastRows=null;drawChart(null);$("mbody").innerHTML="";$("mfoot").innerHTML="";
+    $("mnote").textContent="Ainda não há cotas oficiais no período escolhido.";return;
+  }
+  const {rows,E}=res;lastRows=rows;drawChart(rows);
+  $("mbody").innerHTML=rows.map(r=>`<tr><td>${MC[r.m-1]}/${String(r.y).slice(2)}${r.partStart||r.partEnd?"*":""}</td><td>${n2(r.bruto)}</td><td class="liq">${n2(r.liq)}</td><td class="c-pct">${pct(r.bruto/r.base)}</td><td>${n2(r.acc)}</td></tr>`).join("");
+  $("mfoot").innerHTML=`<tr><td>Total</td><td>${n2(res.G)}</td><td class="liq">${n2(res.L)}</td><td class="c-pct">${pct(res.G/P)}</td><td></td></tr>`;
+  const f=rows[0],l=rows[rows.length-1],parts=[];
+  const fim=ddmm(E)+(E===LAST&&s1>LAST?" (última cota oficial)":"");
+  if(rows.length===1&&l.partEnd)parts.push(`${ML[f.m-1]} de ${ddmm(s0)} a ${fim}`);
+  else{
+    if(f.partStart)parts.push(`${ML[f.m-1]} desde ${ddmm(s0)}`);
+    if(l.partEnd)parts.push(`${ML[l.m-1]} até ${fim}`);
+  }
+  let txt=parts.length?`* Mês parcial: ${parts.join("; ")}.`:"";
+  if(s1>LAST)txt+=(txt?" ":"")+"O resultado acima inclui projeção após a última cota; esta tabela, não.";
+  $("mnote").textContent=txt;
 }
 
 function render(){
   if(!LAST)return;
   let dr=autoRate();const tv=$("t").value.trim();
-  if(tv!==""&&!isNaN(num(tv)))dr=Math.pow(1+num(tv)/100,1/252)-1;
-  $("tnote").textContent=(tv===""?"Automática (média dos últimos 21 dias úteis): ":"Informada: ")+pct(Math.pow(1+dr,252)-1)+" a.a. Usada só depois de "+dbr(LAST)+".";
+  const manual=tv!==""&&!isNaN(num(tv));
+  if(manual)dr=Math.pow(1+num(tv)/100,1/252)-1;
+  const taxa=pct(Math.pow(1+dr,252)-1)+" a.a.";
+  $("rateSum").textContent=(manual?"informada: ":"automática: ")+taxa;
+  $("tnote").textContent=(manual?"Informada: ":"Automática (média dos últimos 21 dias úteis): ")+taxa+"; usada só depois de "+dbr(LAST)+".";
   const P=num($("v").value),s0=$("d0").value,s1=$("d1").value;
   if(!s0||!s1||isNaN(P)){$("out").innerHTML='<span class="err">Preencha valor e datas.</span>';return}
   if(s1<=s0){$("out").innerHTML='<span class="err">A data final deve ser posterior à aplicação.</span>';return}
@@ -133,13 +281,22 @@ function render(){
     <div><span>IR no resgate (${(r.al*100).toLocaleString("pt-BR",{maximumFractionDigits:1})}%${r.pago>0?", descontado o come-cotas":""})</span><b>${brl(r.irRes)}</b></div>
     <div><span>Saldo líquido</span><b class="big">${brl(r.liq)}</b></div>
     <div><span>Rentabilidade líquida no período</span><b>${pct(r.liq/P-1)}</b></div>`;
+  renderMensal(P,s0,s1,dr);
 }
+
 function conferencia(){
-  const linhas=CONF.refs.filter(([d])=>d<=LAST&&Q[d]&&Q[CONF.D0]).map(([d,b,l])=>{
-    const r=simular(CONF.P,CONF.D0,d,0),ok=Math.abs(r.bruto-b)<1;
-    return `<p class="${ok?"okc":"bad"}">${dbr(d)}: bruto ${brl(r.bruto)} x app ${brl(b)}; líquido ${brl(r.liq)} x app ${brl(l)} ${ok?"✓":"✗ confira o CNPJ no script"}</p>`});
-  $("chk").innerHTML=`<h2>Conferência com o app da CAIXA</h2>`+(linhas.length?linhas.join(""):`<p>Sem cotas das datas de referência ainda.</p>`);
+  const res=CONF.refs.filter(([d])=>d<=LAST&&Q[d]&&Q[CONF.D0]).map(([d,b,l])=>{
+    const r=simular(CONF.P,CONF.D0,d,0);return {d,b,l,r,ok:Math.abs(r.bruto-b)<1}});
+  const btn=$("confBtn");
+  if(!res.length){btn.hidden=true;return}
+  const ok=res.every(x=>x.ok);
+  btn.hidden=false;btn.classList.toggle("bad",!ok);
+  btn.textContent=ok?"✓ Confere com o app ›":"⚠ Não confere com o app ›";
+  $("confBox").innerHTML=`<p><b>Conferência com o app da CAIXA</b> (R$ 410.000 aplicados em 04/08/2026)</p>`+res.map(x=>
+    `<p class="${x.ok?"okc":"bad"}">${dbr(x.d)}: bruto ${brl(x.r.bruto)} x app ${brl(x.b)}; líquido ${brl(x.r.liq)} x app ${brl(x.l)} ${x.ok?"✓":"✗ confira o CNPJ no script"}</p>`).join("");
 }
+$("confBtn").addEventListener("click",()=>{const b=$("confBox"),open=b.hidden;b.hidden=!open;$("confBtn").setAttribute("aria-expanded",String(open))});
+
 function mask(el){
   const pos=el.selectionStart??el.value.length,before=el.value.slice(0,pos).replace(/[^\d,]/g,"").length;
   const v=el.value.replace(/[^\d,]/g,""),k=v.indexOf(",");
@@ -156,6 +313,7 @@ try{const s=JSON.parse(localStorage.getItem("megadi")||"null");if(s){$("v").valu
 $("v").addEventListener("input",()=>mask($("v")));
 $("v").addEventListener("blur",()=>{pad($("v"));render()});
 ["v","d0","d1","t"].forEach(i=>$(i).addEventListener("input",render));
+let rz;window.addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>drawChart(lastRows),120)});
 
 fetch("cotas.json?t="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(j=>{
   Q=j.cotas||{};D=Object.keys(Q).sort();
