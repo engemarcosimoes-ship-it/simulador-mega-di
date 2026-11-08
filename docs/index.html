@@ -1,158 +1,27 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Simulador Mega DI RF</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧮</text></svg>">
-<style>
-:root{--bg:#f6f7f9;--card:#ffffff;--tx:#14202e;--mut:#5d6b7a;--line:#d9dee5;--soft:#eef1f4;--acc:#0b4f8a;--ok:#1b7a43;--warn:#a15c00;color-scheme:light;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root{--bg:#10161d;--card:#18212b;--tx:#e8edf2;--mut:#93a1b0;--line:#2b3846;--soft:#222d38;--acc:#6db3f2;--ok:#5fd08a;--warn:#f0b35a;color-scheme:dark}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-main{max-width:560px;margin:0 auto;padding:16px}
-@media (min-width:600px){main{max-width:900px;padding:20px}}
-@media (min-width:1024px){main{max-width:1180px;padding:24px}}
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mega DI • Sua posição</title><style>
+:root{color-scheme:light;--bg:#f3f6f8;--card:#fff;--text:#172e3c;--mut:#536b7b;--line:#d8e2e8;--blue:#155f90;--soft:#edf4f8;--green:#187151;--amber:#925000;--red:#b33535}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}main{max-width:1140px;margin:auto;padding:32px 24px 60px}header{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:22px}h1{font-size:28px;letter-spacing:-.8px;margin:2px 0}h2{font-size:19px;letter-spacing:-.3px;margin:0 0 8px}h3{font-size:15px;margin:0}.over{font-size:11px;font-weight:750;letter-spacing:1.6px;text-transform:uppercase;color:var(--blue)}p{margin:6px 0 12px}.muted,.note{color:var(--mut)}.note{font-size:12px}.version{font-size:12px;padding:6px 10px;background:var(--soft);border-radius:20px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;min-width:0}.layout{display:grid;grid-template-columns:310px minmax(0,1fr);gap:18px;align-items:start}.full{grid-column:1/-1}.stack{display:grid;gap:18px}.side{align-self:stretch;min-width:0}.inputs{position:sticky;top:18px}label{display:block;font-size:13px;font-weight:600;margin:15px 0 6px}input,select{width:100%;min-width:0;padding:12px;font:inherit;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:9px}input[aria-invalid=true]{border-color:var(--red)}button{font:inherit;font-size:13px;font-weight:650;color:var(--blue);padding:9px 12px;min-height:40px;background:var(--soft);border:1px solid var(--line);border-radius:8px;cursor:pointer}button:hover{filter:brightness(.96)}button:disabled{opacity:.5;cursor:wait}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--blue);outline-offset:3px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}summary{cursor:pointer;color:var(--blue);font-weight:600;padding:6px 0}details{min-width:0}.inputs details{margin-top:18px;border-top:1px solid var(--line);padding-top:10px}.status{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:13px;margin-bottom:18px}.status .actions{margin:0}.pill{display:inline-block;font-size:11px;font-weight:650;padding:3px 8px;border-radius:6px;background:var(--soft);color:var(--blue);white-space:nowrap}.pill.projection{background:#fff3e1;color:var(--amber)}.warning{padding:12px 16px;border-left:3px solid var(--amber);background:var(--card);font-size:13px;margin-bottom:18px;color:var(--amber)}.error{color:var(--red);font-size:13px}.error:empty{display:none}.hero{border-top:4px solid var(--blue)}.hero .amount{display:block;font-size:clamp(29px,3.6vw,44px);font-weight:720;letter-spacing:-1.3px;line-height:1.25;margin:8px 0}.gain{font-size:19px;color:var(--green);font-weight:650}.negative{color:var(--red)!important}.kpis{display:grid;grid-template-columns:1fr 1fr;gap:15px;padding-top:17px;margin-top:17px;border-top:1px solid var(--line)}.kpis small{display:block;color:var(--mut)}.kpis b{font-size:18px}.project-box{border:1px dashed var(--blue);border-radius:11px;margin-top:20px;padding:16px;background:var(--soft)}.project-box .amount{font-size:30px}.money-row{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--line)}.money-row:last-child{border:0}.money-row span{color:var(--mut)}.money-row b{text-align:right;font-variant-numeric:tabular-nums}.section-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}.section-head select{width:auto;font-size:13px;padding:8px}.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}th{text-align:right;color:var(--mut);font-weight:550;font-size:12px;padding:12px 10px;border-bottom:1px solid var(--line)}td{text-align:right;padding:14px 10px;border-bottom:1px solid var(--line);white-space:nowrap}th:first-child,td:first-child{text-align:left;padding-left:0}th:last-child,td:last-child{padding-right:0}tfoot td{font-weight:700;border-bottom:0}.subrow td{white-space:normal;text-align:left;background:var(--soft);padding:14px}.subrow[hidden]{display:none}.subgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 24px}.subgrid p{font-size:12px;margin:4px 0}.period-button{background:none;border:0;padding:4px 0;min-height:36px;text-align:left}.period-button small{display:block;color:var(--mut);font-weight:400}.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin:12px 0}.key{display:inline-block;width:12px;height:12px;margin-right:5px;border-radius:2px;background:var(--blue)}.key.estimated{background:transparent;border:1.5px dashed var(--blue)}#chart{min-width:0}#chart svg{display:block;width:100%;height:auto}.chartlabel{font-size:11px;fill:var(--mut)}.line{stroke:var(--line)}.bar{fill:var(--blue)}.bar.projected{fill:var(--blue);fill-opacity:.25;stroke:var(--blue);stroke-dasharray:4 3}.bar.loss{fill:var(--red)}.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}.empty{padding:25px 0;color:var(--mut)}footer{margin-top:22px}.sr{position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden}#result{min-width:0}.audit{font-size:13px}.data-meta{overflow-wrap:anywhere}
+@media(prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#101b24;--card:#182833;--text:#e1edf3;--mut:#aec1cd;--line:#344a59;--blue:#86c8f2;--soft:#213744;--green:#7bd6ad;--amber:#f6bf70;--red:#ff9a95}.pill.projection{background:#44351e}}
+@media(max-width:760px){main{padding:20px 14px 40px}.layout{grid-template-columns:1fr}.inputs{position:static}.card{padding:18px}h1{font-size:24px}.full{grid-column:auto}.hero .amount{font-size:35px}.status{align-items:flex-start}.subgrid{grid-template-columns:1fr}th,td{padding:10px 8px}table{font-size:13px}.version{display:none}.kpis b{font-size:16px}.money-row{font-size:13px}}
+@media(max-width:360px){.hero .amount{font-size:30px}.pair{grid-template-columns:1fr}}
+.sit-m,.period-button .sit-m{display:none}
+@media(max-width:560px){.c-sit,.c-rent{display:none}.sit-m,.period-button .sit-m{display:block;font-size:11px;color:var(--mut);font-weight:400}.cmp td,.cmp th{white-space:normal}.cmp td:first-child{min-width:7em}}
+@media(max-width:400px){table{font-size:12.5px}th,td{padding:9px 5px}.period-button{font-size:13px}}
+@media print{.inputs,.actions,.version,#chartMetric{display:none}.layout{display:block}.card{break-inside:avoid;margin-bottom:16px}body{background:white}}
+</style></head><body><main>
+<header><div><div class="over">Acompanhamento de investimento</div><h1>Mega DI RF <span class="muted">/ CAIXA</span></h1><p class="note">Seu capital, o ganho líquido e as hipóteses de projeção em uma só visão.</p></div><span class="version">Atualização automática</span></header>
+<div class="status" role="status"><span id="dataStatus">Consultando dados…</span></div>
+<p id="loadMessage" class="note" role="status"></p><div id="warnings" class="warning" hidden></div>
+<div class="layout"><div class="side"><section class="card inputs"><h2>Sua aplicação</h2><p class="note">Uma aplicação, sem aportes ou resgates intermediários.</p><label for="capital">Valor aplicado (R$)</label><input id="capital" inputmode="decimal" value="410.000,00"><label for="start">Data da aplicação</label><input id="start" type="date" value="2026-08-04"><label for="end">Até qual data deseja consultar?</label><input id="end" type="date"><div class="actions"><button id="lastDate">Última cota</button><button id="today">Hoje</button></div><p id="dateHelp" class="note"></p>
+<details><summary>Ajustar projeção</summary><label for="rate">Taxa anual estimada (%)</label><input id="rate" inputmode="decimal" placeholder="Automática, se disponível"><p id="rateHelp" class="note"></p><p class="note">Deixe vazio para usar a taxa anualizada das últimas 21 variações disponíveis. Taxa constante, com capitalização em dias úteis (252 por ano). Aceita vírgula ou ponto.</p></details><p id="error" class="error" role="alert"></p></section></div>
+<div class="stack"><section class="card hero" id="result" aria-live="polite"></section><details class="card"><summary>Ver detalhes do cálculo</summary><div id="breakdown"></div></details></div>
+<section class="card full"><div class="section-head"><div><h2>Evolução do ganho</h2><p class="note">Quanto cada período acrescentou ao seu ganho. Clique no período para entender os valores.</p></div><div class="actions"><label class="sr" for="group">Agrupar por</label><select id="group"><option value="auto">Agrupamento automático</option><option value="month">Por mês</option><option value="year">Por ano</option></select><label class="sr" for="chartMetric">Métrica do gráfico</label><select id="chartMetric"><option value="net">Ganho líquido</option><option value="gross">Ganho bruto</option></select></div></div>
+<div class="legend"><span><i class="key"></i>Histórico de cotas</span><span><i class="key estimated"></i>Estimativa após a última cota</span></div><div id="chart"></div><p id="chartHelp" class="note"></p><div class="scroll"><table><thead><tr><th>Período / detalhes</th><th>Ganho líquido</th><th>Ganho acumulado</th><th class="c-sit">Situação</th></tr></thead><tbody id="rows"></tbody><tfoot id="total"></tfoot></table></div><p id="monthlyHelp" class="note"></p></section>
+<details class="card full" id="comparisons"><summary>Comparar cenários de investimento</summary><p class="note">Simulações com taxas informadas, para pessoa física. Não são ofertas de investimento. O período da comparação termina na última cota histórica utilizável.</p><div class="pair"><div><label for="cdb">CDB (% do CDI)</label><input id="cdb" inputmode="decimal" value="100"></div><div><label for="lci">LCI/LCA (% do CDI)</label><input id="lci" inputmode="decimal" value="90"></div></div><p id="compareError" class="error" role="alert"></p><div id="comparison"></div></details>
+<details class="card full"><summary>Dados, metodologia e conferência</summary><div id="audit" class="audit"></div><p class="note">O líquido é uma estimativa de resgate: considera o IR do regime selecionado pelos dados, o IOF aplicável e o come-cotas já antecipado. O ganho mensal é a diferença entre duas estimativas de resgate, não um pagamento mensal. Mudanças de alíquota ou do IOF podem fazer o ganho líquido do mês superar o ganho bruto.</p><p class="note">Calendário nacional simplificado. Em dias sem negociação, usa-se a cota do dia útil anterior para a posição. Aplicações em dias não úteis passam ao próximo dia útil. Lacunas na série bloqueiam o período afetado. Cotização, regime tributário e arredondamentos devem ser confirmados no regulamento e nos extratos.</p><p class="note">O app consulta os dados publicados pela rotina automática. A origem declarada de cada série aparece acima. O modelo de come-cotas ainda requer conferência com extratos que atravessem esse evento. O extrato do banco prevalece.</p></details></div><footer class="note">Simulador pessoal · CNPJ 10.322.633/0001-70 · Preferências e a última série recebida do site podem ser salvas neste navegador.</footer>
+</main><script>
 
-/* Cabeçalho */
-.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:8px 16px;margin-bottom:12px}
-h1{font-size:20px;margin:2px 0}
-.sub{color:var(--mut);font-size:13px;margin:0}
-.badge{font:inherit;font-size:13px;font-weight:600;color:var(--ok);background:var(--card);border:1px solid var(--ok);border-radius:999px;padding:5px 14px;cursor:pointer}
-.badge.bad{color:var(--warn);border-color:var(--warn)}
-.badge.neu{color:var(--mut);border-color:var(--mut)}
-.badge:focus-visible,summary:focus-visible,input:focus{outline:2px solid var(--acc);outline-offset:2px}
-.confbox{margin-bottom:12px;font-size:13.5px}
-.confbox p{margin:4px 0}
-.alertbox{margin-bottom:12px;border-color:var(--warn);font-size:13.5px}
-.alertbox p{margin:3px 0;color:var(--warn)}
-.okc{color:var(--ok)} .bad{color:var(--warn)}
-
-/* Grade responsiva */
-.grid{display:grid;gap:12px;grid-template-columns:minmax(0,1fr);grid-template-areas:"inp" "res" "mon" "calc";align-items:start}
-@media (min-width:600px){.grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto 1fr auto;grid-template-areas:"inp res" "calc res" "mon mon"}}
-@media (min-width:1024px){.grid{grid-template-columns:440px minmax(0,1fr);grid-template-rows:auto auto 1fr;grid-template-areas:"inp mon" "res mon" "calc mon"}}
-.a-inp{grid-area:inp}.a-res{grid-area:res}.a-mon{grid-area:mon}.a-calc{grid-area:calc}
-
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
-label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
-label.first{margin-top:0}
-input{width:100%;min-width:0;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px}
-.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
-.row>div{min-width:0;display:flex;flex-direction:column;justify-content:flex-end}
-
-/* Recolhíveis */
-details>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-details>summary::-webkit-details-marker{display:none}
-.sumt{color:var(--acc);font-weight:600;font-size:14px}
-.sumt::before{content:"›";display:inline-block;width:14px;transition:transform .15s}
-details[open] .sumt::before{transform:rotate(90deg)}
-.sumh{color:var(--mut);font-size:12.5px;text-align:right}
-.sumh.bad{color:var(--warn)}
-.proj{border-top:1px solid var(--line);margin-top:14px;padding-top:12px}
-.note{font-size:12.5px;color:var(--mut);margin:8px 0 0}
-.calc .note:first-of-type{margin-top:10px}
-@media (prefers-reduced-motion:reduce){.sumt::before{transition:none}}
-
-/* Resultado */
-.res div{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
-.res div:last-child{border-bottom:0}
-.res span:first-child{color:var(--mut)}
-.res b{font-variant-numeric:tabular-nums;text-align:right}
-.big{font-size:22px;color:var(--ok)}
-.tag{font-size:12.5px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--mut);text-align:right}
-.tag.real{color:var(--ok);border-color:var(--ok)}
-.tag.proj{color:var(--warn);border-color:var(--warn)}
-.err{color:var(--warn);font-size:14px}
-
-/* Ganho mês a mês */
-.mon h2{font-size:17px;margin:0}
-.mon .s1{font-size:13px;color:var(--mut);margin:2px 0 0}
-.mon .s2{font-size:12.5px;color:var(--mut);margin:2px 0 6px}
-#chart svg{display:block;width:100%;height:auto}
-.bar{fill:var(--acc)}
-.bar.proj{fill:var(--acc);fill-opacity:.25;stroke:var(--acc);stroke-width:1.5;stroke-dasharray:4 3}
-.vl{fill:var(--tx);font-size:11.5px;font-weight:600}
-.ml{fill:var(--mut);font-size:12px}
-.axis{stroke:var(--line)}
-.tw{overflow-x:auto;margin-top:8px}
-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:14px}
-th{font-size:12.5px;color:var(--mut);font-weight:600;text-align:right;padding:6px 0 6px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
-td{text-align:right;padding:7px 0 7px 10px;border-bottom:1px solid var(--soft);white-space:nowrap}
-th:first-child,td:first-child{text-align:left;padding-left:0}
-td.liq{color:var(--acc);font-weight:600}
-tr.proj td{color:var(--mut);font-style:italic}
-tr.proj td.liq{color:var(--acc);opacity:.75}
-#mnote p{margin:6px 0 0}
-tfoot td{font-weight:700;border-top:1px solid var(--tx);border-bottom:0;padding-top:9px}
-tfoot td.liq{color:var(--ok)}
-tbody tr:last-child td{border-bottom:0}
-@media (max-width:429px){.c-pct{display:none}}
-@media (max-width:379px){table{font-size:13px}th{font-size:12px}th,td{padding-left:6px}.calc .sumh{display:none}.card{padding:12px 12px}}
-@media (max-width:339px){table{font-size:12px}th,td{padding-left:4px!important}}
-@media (min-width:600px){table{font-size:14.5px}}
-</style>
-</head>
-<body>
-<main>
-<header class="top">
-  <div>
-    <h1>Simulador Mega DI RF (CAIXA)</h1>
-    <p class="sub" id="status">Carregando cotas…</p>
-  </div>
-  <button type="button" class="badge" id="confBtn" hidden aria-expanded="false" aria-controls="confBox"></button>
-</header>
-<div class="card confbox" id="confBox" hidden></div>
-<div class="card alertbox" id="alert" hidden role="alert"></div>
-
-<div class="grid">
-  <section class="card a-inp">
-    <label class="first" for="v">Valor aplicado (R$)</label>
-    <input id="v" inputmode="decimal" value="410.000,00">
-    <div class="row">
-      <div><label for="d0">Data da aplicação</label><input id="d0" type="date" value="2026-08-04"></div>
-      <div><label for="d1">Data do resgate / posição</label><input id="d1" type="date"></div>
-    </div>
-    <details class="proj">
-      <summary><span class="sumt">Ajustar projeção</span><span class="sumh" id="rateSum"></span></summary>
-      <label for="t">Taxa de projeção, % a.a. base 252 (vazio = automática)</label>
-      <input id="t" inputmode="decimal" placeholder="automática">
-      <p class="note" id="tnote"></p>
-    </details>
-  </section>
-
-  <section class="card res a-res" id="out"></section>
-
-  <section class="card mon a-mon" id="mon">
-    <h2>Ganho mês a mês</h2>
-    <p class="s1">Quanto rendeu em cada mês, em R$, sem o valor aplicado</p>
-    <p class="s2">Barras: rendimento bruto do mês. Tracejadas: projeção.</p>
-    <div id="chart"></div>
-    <div class="tw">
-      <table>
-        <thead><tr><th>Mês</th><th>Bruto</th><th>Líquido</th><th class="c-pct">% mês</th><th>Líq. acum.</th></tr></thead>
-        <tbody id="mbody"></tbody>
-        <tfoot id="mfoot"></tfoot>
-      </table>
-    </div>
-    <div class="note" id="mnote"></div>
-  </section>
-
-  <details class="card calc a-calc">
-    <summary><span class="sumt">Como é calculado</span><span class="sumh">fonte, IR, come-cotas, IOF</span></summary>
-    <p class="note">Cálculo pela cota oficial do fundo (CVM, Informe Diário), atualizada automaticamente duas vezes por dia. A CVM publica com 1 a 2 dias úteis de atraso; depois da última cota, o resultado é projetado pela taxa. Cota de fechamento D+0: a aplicação é cotizada no dia útil da data informada (ou no próximo, se cair em fim de semana ou feriado) e rende a partir do dia útil seguinte.</p>
-    <p class="note" id="regimeNote"></p>
-    <p class="note">Come-cotas: no último dia útil de maio e novembro o banco resgata cotas para pagar parte do IR (15% do rendimento no longo prazo, 20% no curto). O IR do resgate é a diferença para a alíquota da faixa. IOF regressivo só nos primeiros 30 dias.</p>
-    <p class="note">Ganho mês a mês: bruto é o que o fundo rendeu no período; líquido é quanto ele somou ao que você receberia num resgate, com o IR da faixa vigente. As explicações específicas de cada resultado aparecem logo abaixo da tabela.</p>
-    <p class="note">Estimativa; o extrato do banco prevalece.</p>
-  </details>
-</div>
-</main>
-
-<script>
 //#CALC-START
-// ===== Núcleo de cálculo: sem acesso à página, testado automaticamente no GitHub =====
+// Núcleo de cálculo: calendário, cotização e tributação. Testes locais com fixtures. Testado automaticamente no GitHub (scripts/testes.js).
 const CONF={P:410000,D0:"2026-08-04",refs:[["2026-11-03",423180.46,420214.86],["2026-11-04",423404.38,420388.40]]};
 const IOF=[96,93,90,86,83,80,76,73,70,66,63,60,56,53,50,46,43,40,36,33,30,26,23,20,16,13,10,6,3,0];
 const MC=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
@@ -184,52 +53,70 @@ function nextBD(s){const d=pd(s);while(!isBD(d))d.setDate(d.getDate()+1);return 
 function proximoCC(ref){const y0=+ref.slice(0,4);for(let y=y0;y<=y0+1;y++)for(const m of [5,11]){const c=iso(lastBD(y,m));if(c>ref)return c}}
 
 // Estado: cotas oficiais e regime tributário
-let Q={},D=[],LAST=null,REGIME="lp";
+let Q={},D=[],LAST=null,REGIME="lp",CDI={},IPCA={};
 
+// Índices do Banco Central (CDI diário em % ao dia; IPCA mensal em %)
+function lerIndices(j,av){
+  CDI={};IPCA={};let ruim=0;
+  if(j.cdi&&typeof j.cdi==="object")for(const [d,v] of Object.entries(j.cdi)){
+    if(validDate(d)&&typeof v==="number"&&isFinite(v)&&v>=0&&v<0.5)CDI[d]=v;else ruim++}
+  if(j.ipca&&typeof j.ipca==="object")for(const [k,v] of Object.entries(j.ipca)){
+    if(/^\d{4}-\d{2}$/.test(k)&&validDate(k+"-01")&&typeof v==="number"&&isFinite(v)&&v>-5&&v<20)IPCA[k]=v;else ruim++}
+  if(ruim)av.push(ruim+" valor(es) inválido(s) nos índices do Banco Central foram ignorados.");
+}
 // Carrega e valida as cotas. Devolve {erro} ou {avisos, regime, regimeFonte}
+function validDate(s){return typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&s>='1900-01-01'&&s<='2100-12-31'&&iso(pd(s))===s}
+function prevBD(s){const d=pd(s);while(!isBD(d))d.setDate(d.getDate()-1);return iso(d)}
 function setCotas(j,hoje){
-  const src=j&&typeof j==="object"&&j.cotas&&typeof j.cotas==="object"?j.cotas:null;
-  if(!src)return {erro:"Arquivo de cotas em formato inválido."};
-  const av=[],q={};
-  for(const [d,v] of Object.entries(src)){
-    if(!/^\d{4}-\d{2}-\d{2}$/.test(d)||iso(pd(d))!==d){av.push("Data inválida ignorada: "+d+".");continue}
-    if(typeof v!=="number"||!isFinite(v)||v<=0){av.push("Cota inválida ignorada em "+dbr(d)+".");continue}
-    q[d]=v;
-  }
+  if(!j||!j.cotas||Array.isArray(j.cotas)||typeof j.cotas!=='object')return {erro:'Formato inválido: informe um objeto cotas.'};
+  if(j.cnpj&&String(j.cnpj).replace(/\D/g,'')!=='10322633000170')return {erro:'O CNPJ do arquivo não corresponde ao fundo Mega DI RF.'};
+  const todas=Object.keys(j.cotas).sort(),q={},av=[],ignoradas=[];
+  if(!todas.length||todas.length>30000)return {erro:'A série deve conter entre 1 e 30.000 cotas.'};
+  // Uma data ou cota ruim não derruba o app: é descartada com aviso
+  for(const d of todas){
+    const v=j.cotas[d];
+    if(!validDate(d)||d>hoje||!isBD(pd(d))||typeof v!=='number'||!Number.isFinite(v)||v<=0){ignoradas.push(d);continue}
+    q[d]=v}
   const ds=Object.keys(q).sort();
-  if(!ds.length)return {erro:"vazio"};
-  for(let i=1;i<ds.length;i++){
-    const gap=Math.round((pd(ds[i])-pd(ds[i-1]))/864e5);
-    if(gap>7)av.push("Há "+gap+" dias sem cota entre "+dbr(ds[i-1])+" e "+dbr(ds[i])+". Resultados nesse intervalo podem ficar imprecisos.");
-    const salto=Math.abs(q[ds[i]]/q[ds[i-1]]-1);
-    if(salto>0.01)av.push("Variação de "+pct(salto)+" em um dia ("+dbr(ds[i])+"), incomum para este fundo. Confira os dados.");
-  }
-  if(hoje){const n=bd(pd(ds[ds.length-1]),pd(hoje));if(n>4)av.push("A última cota oficial é de "+dbr(ds[ds.length-1])+" (há "+n+" dias úteis). A atualização automática pode ter falhado.")}
-  if(Array.isArray(j.avisos))j.avisos.slice(0,3).forEach(a=>av.push(String(a)));
-  Q=q;D=ds;LAST=ds[ds.length-1];
-  const t=j.tributacao;
-  REGIME=t&&t.longo_prazo===false?"cp":"lp";
-  return {avisos:av,regime:REGIME,regimeFonte:t&&typeof t.longo_prazo==="boolean"?"cvm":"assumido"};
+  if(!ds.length)return {erro:'Nenhuma cota válida no arquivo publicado.'};
+  if(ignoradas.length)av.push(ignoradas.length+' cota(s) ignorada(s) por data futura, inválida, fora do calendário útil ou valor inválido: '+ignoradas.slice(0,3).map(x=>validDate(x)?dbr(x):String(x)).join(', ')+(ignoradas.length>3?'…':'')+'.');
+  let gaps=0;
+  for(let i=1;i<ds.length;i++)if(bd(pd(ds[i-1]),pd(ds[i]))>1)gaps++;
+  if(gaps)av.push('Há '+gaps+' intervalo(s) com cotas ausentes. Simulações que os atravessarem serão bloqueadas.');
+  Q=q;D=ds;LAST=D.at(-1);lerIndices(j,av);
+  REGIME=j.tributacao?.longo_prazo===false?'cp':'lp';
+  const regimeFonte=typeof j.tributacao?.longo_prazo==='boolean'?'informado':'assumido';
+  if(regimeFonte==='assumido')av.push('Regime de longo prazo assumido: o arquivo não informa a classificação tributária.');
+  if(bd(pd(LAST),pd(hoje))>3)av.push('Cotas defasadas: última posição em '+dbr(LAST)+'. Atualize a série para reduzir a projeção.');
+  return {avisos:av,regime:REGIME,regimeFonte};
 }
 
 function autoRate(){ // média dos últimos 21 dias úteis com cota
   const n=Math.min(21,D.length-1);if(n<1)return null;
   const a=D[D.length-1-n],b=D[D.length-1];
-  return Math.pow(Q[b]/Q[a],1/bd(pd(a),pd(b)))-1;
+  if(bd(pd(a),pd(b))!==n)return null;return Math.pow(Q[b]/Q[a],1/n)-1;
 }
 // cota numa data: "app" = primeira cota >= data; "pos" = última cota <= data
 function qAt(s,modo,dr){
-  if(s<D[0])return null;
-  if(s<=LAST){
-    if(Q[s])return {q:Q[s],real:true};
-    if(modo==="app"){const x=D.find(d=>d>=s);return {q:Q[x],real:true}}
-    let x=D[0];for(const d of D){if(d<=s)x=d;else break}return {q:Q[x],real:true};
-  }
-  return {q:Q[LAST]*Math.pow(1+dr,bd(pd(LAST),pd(s))),real:false};
+  const date=modo==='app'?nextBD(s):prevBD(s);
+  if(date<D[0])throw Error('A série começa em '+dbr(D[0])+'.');
+  if(date<=LAST){if(Q[date]===undefined)throw Error('Falta a cota de '+dbr(date)+'. Atualize os dados; não foi usada uma cota de outro dia.');return {q:Q[date],date,real:true}}
+  if(!Number.isFinite(dr)||dr<=-1)throw Error('Informe uma taxa de projeção válida. O histórico disponível não permite calcular a automática.');
+  const q=Q[LAST]*Math.pow(1+dr,bd(pd(LAST),pd(date)));
+  if(!Number.isFinite(q)||q<=0)throw Error('Projeção fora dos limites numéricos. Reduza a taxa ou o prazo.');
+  return {q,date,real:false};
+}
+function completeSeries(start,end){
+  const stop=end<LAST?end:LAST;
+  for(const d=pd(start);iso(d)<=stop;d.setDate(d.getDate()+1))if(isBD(d)&&Q[iso(d)]===undefined)throw Error('Falta a cota de '+dbr(iso(d))+'. Atualize a série para calcular este período.');
 }
 // s0 = data em que a aplicação é cotizada (use nextBD); s1 >= s0
 function simular(P,s0,s1,dr){
-  const R=REG[REGIME],a=qAt(s0,"app",dr),b=qAt(s1,"pos",dr);if(!a||!b)return null;
+  if(!Number.isFinite(P)||P<=0)throw Error('Informe um capital positivo e finito.');
+  s0=nextBD(s0);if(s1<s0)throw Error('A posição deve ser a partir da aplicação efetiva em '+dbr(s0)+'.');
+  completeSeries(s0,s1);
+  const R=REG[REGIME],a=qAt(s0,"app",dr),b=qAt(s1,"pos",dr);
+  if(b.date<a.date)throw Error('A posição é anterior à cota de aplicação.');
   let N=P/a.q,base=a.q,pago=0;
   const y0=+s0.slice(0,4),y1=+s1.slice(0,4);
   for(let y=y0;y<=y1;y++)for(const m of [5,11]){
@@ -240,7 +127,7 @@ function simular(P,s0,s1,dr){
   const bruto=N*b.q,dc=Math.round((pd(s1)-pd(s0))/864e5),ganho=bruto+pago-P;
   const iof=dc<30&&ganho>0?ganho*IOF[Math.max(dc,1)-1]/100:0;
   const al=R.aliq(dc),irRes=Math.max(0,al*(ganho-iof)-pago);
-  return {bruto,pago,iof,al,irRes,liq:bruto-iof-irRes,liqSemIof:bruto-Math.max(0,al*ganho-pago),dc,du:bd(pd(s0),pd(s1)),real:a.real&&b.real};
+  return {entryDate:a.date,positionDate:b.date,entryQuote:a.q,positionQuote:b.q,units:N,bruto,pago,iof,al,irRes,liq:bruto-iof-irRes,liqSemIof:bruto-Math.max(0,al*ganho-pago),dc,du:bd(pd(s0),pd(s1)),real:a.real&&b.real};
 }
 
 // Ganho mês a mês até s1 (meses depois da última cota oficial são projeção)
@@ -255,158 +142,209 @@ function mensal(P,e0,s1,dr){
   }
   const rows=[];let pG=0,pL=0,pEnd=e0,pAl=null,skipped=false;
   ends.forEach(end=>{
-    const r=simular(P,e0,end,dr),G=r.bruto+r.pago-P,L=r.liqSemIof-P;
+    const r=simular(P,e0,end,dr),G=r.bruto+r.pago-P,L=r.liq-P;
     const yy=+end.slice(0,4),mm=+end.slice(5,7),me=iso(new Date(yy,mm,0));
     let pEndPartial=false;
     if(end<me){const c=pd(end),lim=pd(me);for(;;){c.setDate(c.getDate()+1);if(c>lim)break;if(isBD(c)){pEndPartial=true;break}}}
     const first=rows.length===0&&!skipped;
     if(first&&G===0&&end===me&&ends.length>1){skipped=true;pG=G;pL=L;pEnd=end;pAl=r.al;return}
-    rows.push({y:yy,m:mm,start:pEnd,end,bruto:G-pG,liq:L-pL,base:P+pG,acc:L,proj:pEnd>=LAST,pStart:first,pEnd:pEndPartial,
-      cut:pAl!==null&&r.al<pAl?{de:pAl,para:r.al}:null});
+    rows.push({y:yy,m:mm,start:pEnd,end,bruto:G-pG,liq:L-pL,base:P+pG,acc:L,proj:pEnd>=LAST&&bd(pd(LAST),pd(end))>0,pStart:first,pEnd:pEndPartial,
+      alPrev:pAl===null?r.al:pAl,al:r.al,cut:pAl!==null&&r.al<pAl?{de:pAl,para:r.al}:null});
     pG=G;pL=L;pEnd=end;pAl=r.al;
   });
   return {rows,G:pG,L:pL};
 }
-//#CALC-END
 
-const $=id=>document.getElementById(id);
-let lastRows=null;
-
-function drawChart(rows){
-  const el=$("chart");if(!rows||!rows.length){el.innerHTML="";return}
-  const W=Math.max(el.clientWidth||320,240),H=176,top=24,bot=26,ch=H-top-bot;
-  const show=rows.slice(-12),n=show.length,slot=W/n,bw=Math.min(46,slot*0.62);
-  const max=Math.max(...show.map(r=>r.bruto),1);
-  const mode=slot>=64?"full":slot>=40?"short":"none";
-  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Rendimento bruto por mês"><line class="axis" x1="0" y1="${top+ch}" x2="${W}" y2="${top+ch}"/>`;
-  show.forEach((r,i)=>{
-    const cx=slot*(i+0.5),h=Math.max(ch*Math.max(r.bruto,0)/max,r.bruto>0?3:0),yb=top+ch-h;
-    s+=`<rect class="${r.proj?"bar proj":"bar"}" x="${cx-bw/2}" y="${yb}" width="${bw}" height="${h}" rx="4"><title>${ML[r.m-1]}/${r.y}${r.proj?" (projeção)":""}: bruto ${brl(r.bruto)}, líquido ${brl(r.liq)}</title></rect>`;
-    if(mode!=="none"){
-      const lab=mode==="full"?"R$ "+Math.round(r.bruto).toLocaleString("pt-BR"):(r.bruto/1000).toLocaleString("pt-BR",{maximumFractionDigits:1})+" mil";
-      s+=`<text class="vl" x="${cx}" y="${yb-7}" text-anchor="middle">${lab}</text>`;
-    }
-    s+=`<text class="ml" x="${cx}" y="${H-6}" text-anchor="middle">${MC[r.m-1]}${r.pStart||r.pEnd?"*":""}${r.proj?"~":""}</text>`;
+// Junta as partes oficial e projetada do mesmo mês em uma linha só
+function agrupar(rows){
+  const mp=new Map();
+  rows.forEach(r=>{
+    const k=r.y*100+r.m;let g=mp.get(k);
+    if(!g){g={y:r.y,m:r.m,rb:null,rl:null,pb:null,pl:null,base:r.base,pStart:r.pStart,pEnd:false,alPrev:r.alPrev,al:r.al,end:r.end,acc:r.acc};mp.set(k,g)}
+    if(r.proj){g.pb=(g.pb||0)+r.bruto;g.pl=(g.pl||0)+r.liq}else{g.rb=(g.rb||0)+r.bruto;g.rl=(g.rl||0)+r.liq}
+    g.pEnd=r.pEnd;g.al=r.al;g.end=r.end;g.acc=r.acc;g.pStart=g.pStart||r.pStart;
   });
-  el.innerHTML=s+"</svg>";
+  return [...mp.values()].map(g=>({...g,proj:g.rb===null,cut:g.al<g.alPrev?{de:g.alPrev,para:g.al}:null}));
+}
+// Agrupa os meses por ano-calendário
+function porAno(ms){
+  const mp=new Map();
+  ms.forEach(r=>{
+    let g=mp.get(r.y);
+    if(!g){g={y:r.y,rb:null,rl:null,pb:null,pl:null,base:r.base,alPrev:r.alPrev,mIni:r.m,pStart:r.pStart,meses:[]};mp.set(r.y,g)}
+    if(r.rb!==null){g.rb=(g.rb||0)+r.rb;g.rl=(g.rl||0)+r.rl}
+    if(r.pb!==null){g.pb=(g.pb||0)+r.pb;g.pl=(g.pl||0)+r.pl}
+    g.al=r.al;g.acc=r.acc;g.end=r.end;g.mFim=r.m;g.pEnd=r.pEnd;g.meses.push(r);
+  });
+  return [...mp.values()].map(g=>({...g,proj:g.rb===null,cut:g.al<g.alPrev?{de:g.alPrev,para:g.al}:null,partial:!!(g.pStart||g.mIni>1||g.pEnd||g.mFim<12)}));
 }
 
-function limparMensal(msg){
-  lastRows=null;$("chart").innerHTML="";$("mbody").innerHTML="";$("mfoot").innerHTML="";
-  $("mnote").innerHTML=`<p>${msg}</p>`;
-}
-function erro(msg){$("out").innerHTML=`<span class="err">${msg}</span>`;limparMensal("Sem resultado: corrija os campos acima.")}
-
-function renderMensal(P,e0,s1,dr,r,taxa){
-  const res=mensal(P,e0,s1,dr);
-  if(!res||!res.rows.length){limparMensal("Sem dias de rendimento no período.");return}
-  const {rows}=res;lastRows=rows;drawChart(rows);
-  const tag=x=>MC[x.m-1]+"/"+String(x.y).slice(2)+(x.pStart||x.pEnd?"*":"")+(x.proj?"~":"")+(x.cut?"†":"");
-  $("mbody").innerHTML=rows.map(x=>`<tr class="${x.proj?"proj":""}"><td>${tag(x)}</td><td>${n2(x.bruto)}</td><td class="liq">${n2(x.liq)}</td><td class="c-pct">${pct(x.bruto/x.base)}</td><td>${n2(x.acc)}</td></tr>`).join("");
-  $("mfoot").innerHTML=`<tr><td>Total</td><td>${n2(res.G)}</td><td class="liq">${n2(res.L)}</td><td class="c-pct">${pct(res.G/P)}</td><td></td></tr>`;
-  const notes=[];
-  const porMes=new Map();
-  rows.forEach(x=>{const k=x.y+"-"+x.m,g=porMes.get(k)||{m:x.m,ini:false,fim:null};if(x.pStart)g.ini=true;g.fim=x.pEnd?x.end:null;porMes.set(k,g)});
-  const parc=[...porMes.values()].filter(g=>g.ini||g.fim).map(g=>g.ini&&g.fim?`${ML[g.m-1]} de ${ddmm(e0)} a ${ddmm(g.fim)}`:g.ini?`${ML[g.m-1]} desde ${ddmm(e0)}`:`${ML[g.m-1]} até ${ddmm(g.fim)}`);
-  if(parc.length)notes.push(`* Mês parcial: ${parc.join("; ")}.`);
-  if(rows.some(x=>x.proj))notes.push(`~ Projeção: depois da última cota oficial (${ddmm(LAST)}), à taxa de ${taxa} Por isso o total fecha com o resultado ao lado.`);
-  const cut=rows.filter(x=>x.cut)[0];
-  if(cut)notes.push(`† Em ${ML[cut.m-1]}/${cut.y} a faixa de IR cai de ${(cut.cut.de*100).toLocaleString("pt-BR",{maximumFractionDigits:1})}% para ${(cut.cut.para*100).toLocaleString("pt-BR",{maximumFractionDigits:1})}%. A nova alíquota vale sobre todo o rendimento acumulado, por isso o líquido do mês sobe mais que o bruto.`);
-  if(r.pago>0)notes.push(`O bruto da tabela é o rendimento antes do come-cotas: saldo bruto do card ${brl(r.bruto)} − aplicado ${brl(P)} + come-cotas ${brl(r.pago)} = ${brl(r.bruto-P+r.pago)}.`);
-  if(r.iof>0)notes.push(`O líquido ao lado desconta IOF de ${brl(r.iof)}; a tabela não inclui IOF.`);
-  $("mnote").innerHTML=notes.map(t=>`<p>${t}</p>`).join("");
-}
-
-function render(){
-  if(!LAST)return;
-  let dr=autoRate();if(dr===null)dr=0.0005;
-  const tv=$("t").value.trim();let manual=false,taxaInv=false;
-  if(tv!==""){const x=numTaxa(tv);if(!isNaN(x)&&x<=100){dr=Math.pow(1+x/100,1/252)-1;manual=true}else taxaInv=true}
-  const taxa=pct(Math.pow(1+dr,252)-1)+" a.a.";
-  $("rateSum").textContent=taxaInv?"taxa inválida; usando a automática":(manual?"informada: ":"automática: ")+taxa;
-  $("rateSum").classList.toggle("bad",taxaInv);
-  $("tnote").textContent=taxaInv?"Valor inválido. Use um número de 0 a 100, com vírgula ou ponto (ex.: 12,5). Usando a automática: "+taxa+".":(manual?"Informada: ":"Automática (média dos últimos 21 dias úteis): ")+taxa+"; usada só depois de "+dbr(LAST)+".";
-
-  const P=numValor($("v").value),s0=$("d0").value,s1=$("d1").value;
-  if(!(P>0))return erro("Informe um valor aplicado maior que zero.");
-  if(!s0||!s1||isNaN(pd(s0).getTime())||isNaN(pd(s1).getTime()))return erro("Informe datas válidas.");
-  if(s0>"2035-12-31"||s1>"2035-12-31")return erro("Use datas até 31/12/2035.");
-  const e0=nextBD(s0);
-  if(e0<D[0])return erro(`A série de cotas começa em ${dbr(D[0])}. Use uma aplicação a partir dessa data.`);
-  if(s1<e0)return erro(`A aplicação é cotizada em ${dbr(e0)}${e0!==s0?" (próximo dia útil)":""}. Escolha uma posição a partir dessa data.`);
-  const r=simular(P,e0,s1,dr);
-  try{localStorage.setItem("megadi",JSON.stringify({v:$("v").value,d0:s0}))}catch(e){}
-  const tag=r.real?`<span class="tag real">cota oficial</span>`:`<span class="tag proj">real até ${dbr(LAST)}, depois projeção</span>`;
-  $("out").innerHTML=
-   `<div><span>Origem</span>${tag}</div>
-    ${e0!==s0?`<div><span>Aplicação cotizada em</span><b>${dbr(e0)} (próximo dia útil)</b></div>`:""}
-    <div><span>Dias corridos / úteis</span><b>${r.dc} / ${r.du}</b></div>
-    <div><span>Saldo bruto</span><b>${brl(r.bruto)}</b></div>
-    ${r.pago>0?`<div><span>Come-cotas já descontado</span><b>${brl(r.pago)}</b></div>`:""}
-    ${r.iof>0?`<div><span>IOF</span><b>${brl(r.iof)}</b></div>`:""}
-    <div><span>IR no resgate (${(r.al*100).toLocaleString("pt-BR",{maximumFractionDigits:1})}%${r.pago>0?", descontado o come-cotas":""})</span><b>${brl(r.irRes)}</b></div>
-    <div><span>Saldo líquido</span><b class="big">${brl(r.liq)}</b></div>
-    <div><span>Rentabilidade líquida no período</span><b>${pct(r.liq/P-1)}</b></div>
-    ${REGIME==="cp"?`<div><span>Regime tributário</span><b>curto prazo (cadastro CVM)</b></div>`:""}`;
-  renderMensal(P,e0,s1,dr,r,taxa);
-}
-
-function conferencia(){
-  const btn=$("confBtn"),box=$("confBox");
-  const refs=CONF.refs.filter(([d])=>d<=LAST&&Q[d]&&Q[CONF.D0]);
-  if(!refs.length){btn.hidden=true;box.hidden=true;return}
-  const res=refs.map(([d,b,l])=>{const r=simular(CONF.P,CONF.D0,d,0);return {d,b,l,r,db:r.bruto-b,dl:r.liq-l}});
-  const ok=res.every(x=>Math.abs(x.db)<1&&Math.abs(x.dl)<1);
-  const ultima=refs[refs.length-1][0],cc=proximoCC(ultima),alem=LAST>=cc;
-  const dif=v=>(v>=0?"+":"−")+brl(Math.abs(v));
-  const lin=res.map(x=>`<p class="${Math.abs(x.db)<1&&Math.abs(x.dl)<1?"okc":"bad"}">${dbr(x.d)}: bruto ${brl(x.r.bruto)} (app ${brl(x.b)}; dif. ${dif(x.db)}) · líquido ${brl(x.r.liq)} (app ${brl(x.l)}; dif. ${dif(x.dl)})</p>`).join("");
-  btn.hidden=false;btn.classList.remove("bad","neu");
-  if(!ok){
-    btn.classList.add("bad");btn.textContent="⚠ Não confere com o app ›";
-    box.innerHTML=`<p><b>O cálculo diverge do app da CAIXA</b> (R$ 410.000 aplicados em 04/08/2026)</p>${lin}<p class="bad">Diferença acima de R$ 1,00. Confira o CNPJ e o regime tributário no script.</p>`;
-  }else if(!alem){
-    btn.textContent="✓ Conferido com o app até "+ddmm(ultima)+" ›";
-    box.innerHTML=`<p><b>${res.length} conferências com o app da CAIXA</b> (R$ 410.000 aplicados em 04/08/2026): bruto e líquido dentro de R$ 1,00.</p>${lin}<p>Estas conferências são anteriores ao primeiro come-cotas (${dbr(cc)}). O selo muda sozinho depois dessa data.</p>`;
-  }else{
-    btn.classList.add("neu");btn.textContent="Come-cotas sem conferência com o app ›";
-    box.innerHTML=`<p><b>Conferências com o app, todas anteriores ao come-cotas de ${dbr(cc)}</b></p>${lin}<p>Depois dessa data o cálculo segue a regra legal (${(REG[REGIME].cc*100).toFixed(0)}% do rendimento, regime de ${REG[REGIME].nome}), sem comparação com o saldo do banco. Não há fonte automática para o saldo pessoal.</p>`;
+// ===== Comparativos (CDI, CDB, LCI/LCA, poupança, IPCA) =====
+// CDI acumulado nos dias úteis de [e0, end): a cota de um dia embute o CDI do dia útil anterior
+function cdiFator(e0,end,pctCdi){
+  let f=1;const c=pd(e0),fim=pd(end);
+  for(;c<fim;c.setDate(c.getDate()+1)){
+    if(!isBD(c))continue;
+    const v=CDI[iso(c)];if(v===undefined)return null;
+    f*=1+pctCdi/100*v/100;
   }
+  return f;
 }
-$("confBtn").addEventListener("click",()=>{const b=$("confBox"),open=b.hidden;b.hidden=!open;$("confBtn").setAttribute("aria-expanded",String(open))});
-
-function renderAlert(av){
-  const el=$("alert");
-  if(!av||!av.length){el.hidden=true;return}
-  el.hidden=false;el.innerHTML=av.slice(0,4).map(t=>`<p>⚠ ${t}</p>`).join("")+(av.length>4?`<p>… e mais ${av.length-4} aviso(s).</p>`:"");
+// Aniversários completos da poupança (depósito nos dias 29 a 31 conta como dia 1 do mês seguinte)
+function poupAniv(e0,end){
+  const d=pd(e0);let y=d.getFullYear(),m=d.getMonth(),dia=d.getDate();
+  if(dia>28){m++;dia=1}
+  const fim=pd(end);let n=0;
+  for(let k=1;k<=1200;k++){if(new Date(y,m+k,dia)>fim)break;n++}
+  return n;
+}
+// IPCA mensal distribuído pelos dias corridos de [e0, end]
+function ipcaPR(e0,end){
+  const ini=pd(e0),fim=pd(end);fim.setDate(fim.getDate()+1);
+  let y=ini.getFullYear(),m=ini.getMonth(),f=1;
+  for(;;){
+    const ms=new Date(y,m,1),me=new Date(y,m+1,1);if(ms>=fim)break;
+    const k=y+"-"+String(m+1).padStart(2,"0");if(IPCA[k]===undefined)return null;
+    const a=ini>ms?ini:ms,b=fim<me?fim:me;
+    f*=Math.pow(1+IPCA[k]/100,Math.round((b-a)/864e5)/Math.round((me-ms)/864e5));
+    m++;if(m>11){m=0;y++}
+  }
+  return f;
+}
+function ipcaFim(end){
+  const k=Object.keys(IPCA).sort().pop();if(!k)return null;
+  const ult=iso(new Date(+k.slice(0,4),+k.slice(5,7),0));
+  return ult<end?ult:end;
+}
+const aliqCDB=dc=>REG.lp.aliq(dc); // CDB: tabela regressiva comum
+// cfg = {cdb:% do CDI|null, lci:% do CDI|null}. Compara até min(s1, última cota oficial)
+function compararInvest(P,e0,s1,dr,cfg){
+  const end=prevBD(s1<LAST?s1:LAST);
+  if(end<=e0)return {erro:'Escolha um período com rendimento histórico disponível.'};
+  if(!Object.keys(CDI).length)return {erro:'O CDI ainda não está disponível na série publicada. A comparação será habilitada quando a atualização automática disponibilizar o CDI.'};
+  const fat=cdiFator(e0,end,100);if(fat===null)return {erro:'Faltam taxas de CDI no período escolhido. A comparação não foi calculada.'};
+  const r=simular(P,e0,end,dr),base=qAt(end,'pos',dr).q/qAt(e0,'app',dr).q-1;
+  const out={end,fundo:{ganho:r.liq-P,ret:r.liq/P-1},cdi:fat-1,pctCdi:fat>1?base/(fat-1):null};
+  if(cfg.cdb!==null){const g=P*(cdiFator(e0,end,cfg.cdb)-1),iof=r.dc<30?Math.max(0,g)*IOF[Math.max(1,r.dc)-1]/100:0,ir=Math.max(0,g-iof)*aliqCDB(r.dc);out.cdb={ganho:g-iof-ir,ret:(g-iof-ir)/P,iof,ir}}
+  if(cfg.lci!==null){const g=P*(cdiFator(e0,end,cfg.lci)-1);out.lci={ganho:g,ret:g/P}}
+  return out;
 }
 
-function mask(el){
-  const pos=el.selectionStart??el.value.length,before=el.value.slice(0,pos).replace(/[^\d,]/g,"").length;
-  const v=el.value.replace(/[^\d,]/g,""),k=v.indexOf(",");
-  let int=k<0?v:v.slice(0,k),dec=k<0?null:v.slice(k+1).replace(/,/g,"").slice(0,2);
-  int=int.replace(/^0+(?=\d)/,"").replace(/\B(?=(\d{3})+(?!\d))/g,".");
-  el.value=dec===null?int:int+","+dec;
-  let c=0,i=0;while(i<el.value.length&&c<before){if(/[\d,]/.test(el.value[i]))c++;i++}
-  try{el.setSelectionRange(i,i)}catch(e){}
+//#CALC-END
+// Interface e carga de dados
+const $=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let currentData=null,view=null,loading=false,lastAttempt=0;
+const quoteCacheKey='megadi-auto:'+location.origin+location.pathname;
+const today=()=>iso(new Date());
+const fmt=q=>q.toLocaleString('pt-BR',{maximumFractionDigits:8});
+const entryNumber=s=>{const t=String(s).trim().replace(/\s/g,'');return /^\d{1,3}(\.\d{3})*(,\d{1,2})?$/.test(t)||/^\d+(,\d{1,2})?$/.test(t)?Number(t.replace(/\./g,'').replace(',','.')):NaN};
+function row(label,value){return '<div class="money-row"><span>'+esc(label)+'</span><b>'+esc(value)+'</b></div>'}
+function signed(n){return (n<0?'− ':'+ ')+brl(Math.abs(n))}
+function fail(message,field){view=null;$('error').textContent=message;if(field)$(field).setAttribute('aria-invalid','true');$('result').innerHTML='<h2>Resultado indisponível</h2><p class="muted">'+esc(message)+'</p>';$('breakdown').textContent='Corrija a informação para consultar a composição.';['rows','total','chart','comparison'].forEach(id=>$(id).innerHTML='');$('chartHelp').textContent='';$('monthlyHelp').textContent='Nenhum resultado anterior foi mantido.'}
+function getRate(){const raw=$('rate').value.trim();let dr=null;
+ if(raw){if(!/^-?\d+(?:[.,]\d+)?$/.test(raw))throw Error('Use uma taxa válida, como 12,5 ou 12.5.');const n=Number(raw.replace(',','.'));if(n<=-100||n>100)throw Error('Informe uma taxa maior que −100% e até 100% ao ano.');dr=Math.pow(1+n/100,1/252)-1}
+ else dr=autoRate();
+ $('rateHelp').textContent=dr===null?'Taxa automática indisponível: faltam variações consecutivas. Informe uma taxa para projetar.':(raw?'Taxa informada: ':'Taxa calculada do histórico: ')+pct(Math.pow(1+dr,252)-1)+' a.a. Não é garantia de rentabilidade.';
+ return dr;
 }
-function pad(el){if(!el.value)return;const k=el.value.indexOf(",");if(k<0)el.value+=",00";else if(el.value.length-k-1===1)el.value+="0";else if(k===el.value.length-1)el.value+="00"}
+function render(){
+ ['capital','start','end','rate'].forEach(id=>$(id).removeAttribute('aria-invalid'));$('error').textContent='';if(!LAST)return;
+ const P=entryNumber($('capital').value),s0=$('start').value,s1=$('end').value;
+ if(!Number.isFinite(P)||P<=0||P>1e12)return fail('Informe um valor positivo de até R$ 1 trilhão, usando vírgula nos centavos.','capital');
+ if(!validDate(s0))return fail('Informe uma data de aplicação válida.','start');if(!validDate(s1)||s1>'2035-12-31')return fail('Informe uma data de consulta até 31/12/2035.','end');
+ const e0=nextBD(s0);$('dateHelp').textContent=e0===s0?'Aplicação efetiva: '+dbr(e0)+'.':'Aplicação ajustada para '+dbr(e0)+', próximo dia útil.';
+ if(s1<e0)return fail('Escolha uma posição a partir de '+dbr(e0)+'.','end');
+ let dr;try{dr=getRate()}catch(e){return fail(e.message,'rate')}
+ const future=prevBD(s1)>LAST;
+ if(future&&dr===null)return fail('Não há histórico suficiente para a taxa automática. Informe uma taxa para projetar.','rate');
+ try{
+ const r=simular(P,e0,s1,dr),hist=e0<=LAST?simular(P,e0,s1<LAST?s1:LAST,dr):null;
+ if(![r.bruto,r.liq,r.pago,r.iof,r.irRes].every(Number.isFinite))throw Error('Resultado fora dos limites numéricos. Revise os parâmetros.');
+ const hasProjection=!r.real,delta=hist?r.liq-hist.liq:r.liq-P;
+ let h='';if(hist){h='<span class="pill">Histórico de cotas até '+dbr(hist.positionDate)+'</span><h2 style="margin-top:12px">Saldo líquido estimado</h2><b class="amount">'+brl(hist.liq)+'</b><p class="gain '+(hist.liq<P?'negative':'')+'">'+(hist.liq<P?'Perda':'Ganho')+' líquido: '+brl(hist.liq-P)+'</p><p class="note">Estimativa de resgate calculada com as cotas disponíveis; não é saldo bancário confirmado.</p><div class="kpis"><div><small>Capital aplicado</small><b>'+brl(P)+'</b></div><div><small>Rentabilidade líquida histórica</small><b>'+pct(hist.liq/P-1)+'</b></div></div>'}
+ if(hasProjection){h+='<div class="project-box"><span class="pill projection">Projeção para '+dbr(s1)+'</span><h3 style="margin-top:10px">Saldo líquido estimado na data escolhida</h3><b class="amount">'+brl(r.liq)+'</b>'+row(hist?'Ganho líquido adicional projetado':'Ganho líquido projetado',signed(delta))+row('Ganho líquido total estimado',brl(r.liq-P))+row('Rentabilidade líquida total',pct(r.liq/P-1))+'<p class="note">Hipótese constante: '+pct(Math.pow(1+dr,252)-1)+' a.a. '+(hist?'Após a última cota disponível.':'Aplicação futura, sem posição histórica.')+' Toda projeção é indicativa.</p></div>'}
+ $('result').innerHTML=h;
+ $('breakdown').innerHTML='<p class="note">Composição na data solicitada: '+dbr(s1)+(hasProjection?' · inclui projeção':'')+'.</p>'+row('Capital aplicado',brl(P))+row('Ganho bruto¹',brl(r.bruto+r.pago-P))+row('Come-cotas antecipado',brl(r.pago))+row('Saldo antes dos impostos do resgate',brl(r.bruto))+row('IOF estimado no resgate',brl(r.iof))+row('IR adicional estimado ('+pct(r.al)+')',brl(r.irRes))+row('Saldo líquido estimado',brl(r.liq))+row('Cota de aplicação · '+dbr(r.entryDate),fmt(r.entryQuote))+row('Cota de posição · '+dbr(r.positionDate),fmt(r.positionQuote))+row('Quantidade de cotas após come-cotas',fmt(r.units))+row('Prazo desde a aplicação efetiva',r.dc+' dias corridos · '+r.du+' úteis')+'<p class="note">¹ Rendimento das cotas efetivamente mantidas, com os tributos antecipados somados de volta. Não equivale a um cenário sem come-cotas. A conta fecha: capital + rendimento − come-cotas − IOF − IR adicional = saldo líquido.</p>';
+ view={P,e0,s1,dr,r};renderMonthly();renderComparison();
+ try{localStorage.setItem('megadi-v3-settings',JSON.stringify({capital:$('capital').value,start:s0,cdb:$('cdb').value,lci:$('lci').value}))}catch(e){}
+ }catch(e){fail(e.message)}
+}
+function renderMonthly(){if(!view)return;const {P,e0,s1,dr,r}=view,res=mensal(P,e0,s1,dr);
+ if(!res){$('rows').innerHTML='';$('total').innerHTML='';$('chart').innerHTML='';$('chartHelp').textContent='';$('monthlyHelp').textContent='Ainda não houve evolução entre a aplicação e a posição escolhida.';return}
+ const months=agrupar(res.rows),annual=$('group').value==='year'||($('group').value==='auto'&&months.length>12),items=annual?porAno(months):months;
+ let html='';items.forEach((x,i)=>{const g=(x.rl||0)+(x.pl||0),name=annual?String(x.y):ML[x.m-1]+'/'+x.y,status=x.pb===null?'Histórico':x.rb===null?'Projeção':'Histórico + projeção';
+ const start=annual?x.meses[0]:x,partial=annual?x.partial:x.pStart||x.pEnd;
+ const details=row('Ganho bruto',brl((x.rb||0)+(x.pb||0)))+row('Efeito líquido dos tributos no ganho²',signed(g-((x.rb||0)+(x.pb||0))))+row('Ganho líquido do período',brl(g))+(x.rb!==null?row('Parcela líquida histórica',brl(x.rl)): '')+(x.pb!==null?row('Parcela líquida projetada',brl(x.pl)):'')+(x.cut?'<p class="note">A alíquota estimada de IR mudou de '+pct(x.cut.de)+' para '+pct(x.cut.para)+'.</p>':'');
+ const children=annual?'<p class="note">Meses deste ano</p>'+x.meses.map(m=>row(ML[m.m-1]+'/'+m.y,brl((m.rl||0)+(m.pl||0)))).join(''):'';
+ html+='<tr><td><button class="period-button" aria-expanded="false" aria-controls="detail-'+i+'" data-detail="'+i+'">'+esc(name)+' <span aria-hidden="true">⌄</span>'+(partial?'<small>Período parcial</small>':'')+'<small class="sit-m">'+status+'</small></button></td><td class="'+(g<0?'negative':'')+'">'+n2(g)+'</td><td>'+n2(x.acc)+'</td><td class="c-sit"><span class="pill '+(x.pb!==null?'projection':'')+'">'+status+'</span></td></tr><tr class="subrow" id="detail-'+i+'" hidden><td colspan="4">'+details+children+'</td></tr>';
+ });$('rows').innerHTML=html;$('total').innerHTML='<tr><td>Ganho líquido total<small class="sit-m">'+(!r.real?'Inclui projeção':'Histórico')+'</small></td><td>'+n2(res.L)+'</td><td>'+n2(res.L)+'</td><td class="c-sit">'+(!r.real?'Inclui projeção':'Histórico')+'</td></tr>';
+ $('monthlyHelp').textContent='Valores em R$. Líquido inclui IOF e IR estimados. O ganho acumulado não inclui o capital aplicado. ² O efeito dos tributos pode ser positivo quando a estimativa do imposto diminui; não representa necessariamente imposto pago no mês.';
+ drawChart(items,annual);
+}
+let lastChart=null,rzChart=0;
+function drawChart(items,annual){lastChart=[items,annual];const el=$('chart'),show=items.slice(-12),gross=$('chartMetric').value==='gross',a=gross?'rb':'rl',b=gross?'pb':'pl';
+ // Desenha na largura real do cartão: os textos ficam com o tamanho do CSS em qualquer tela
+ const W=Math.max(Math.round(el.clientWidth||320),240),H=W<520?190:220,top=20,bottom=H-32,height=bottom-top;
+ const vals=show.map(x=>[x[a]||0,x[b]||0]),max=Math.max(0,...vals.map(v=>v.reduce((s,n)=>s+Math.max(n,0),0))),min=Math.min(0,...vals.map(v=>v.reduce((s,n)=>s+Math.min(n,0),0))),range=max-min||1,zero=top+height*max/range,slot=W/show.length,bw=Math.min(45,slot*.6);
+ const passo=slot<26?2:1,rot=x=>annual?String(x.y):slot>=46?MC[x.m-1]+'/'+String(x.y).slice(-2):MC[x.m-1];
+ let svg='<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="Evolução do ganho '+(gross?'bruto':'líquido')+'; valores detalhados na tabela"><line class="line" x1="0" y1="'+zero+'" x2="'+W+'" y2="'+zero+'"/>';
+ show.forEach((x,i)=>{let pos=zero,neg=zero;vals[i].forEach((v,j)=>{if(v===0)return;const h=Math.max(Math.abs(v)/range*height,2),y=v>0?pos-h:neg;if(v>0)pos=y;else neg+=h;svg+='<rect class="bar '+(j?'projected ':'')+(v<0?'loss':'')+'" x="'+(slot*(i+.5)-bw/2)+'" y="'+y+'" width="'+bw+'" height="'+h+'" rx="3"><title>'+esc((annual?x.y:ML[x.m-1]+'/'+x.y)+' · '+(j?'projeção':'histórico')+': '+brl(v))+'</title></rect>'});
+  if(i%passo===0||i===show.length-1)svg+='<text class="chartlabel" x="'+slot*(i+.5)+'" y="'+(H-10)+'" text-anchor="middle">'+rot(x)+'</text>'});
+ $('chart').innerHTML=svg+'</svg>';$('chartHelp').textContent=(gross?'Ganho bruto':'Ganho líquido após os tributos estimados')+' por '+(annual?'ano':'mês')+'. '+(gross?'Ganho bruto é o rendimento antes dos tributos, sem o capital aplicado. ':'')+(items.length>12?'Gráfico: últimos 12 períodos. A tabela contém todos.':'')+' Perdas aparecem abaixo de zero.';
+}
+window.addEventListener('resize',()=>{clearTimeout(rzChart);rzChart=setTimeout(()=>{if(lastChart)drawChart(lastChart[0],lastChart[1])},150)});
+function renderComparison(){if(!view)return;const {P,e0,s1,dr}=view;$('compareError').textContent='';const cfg={};
+ for(const id of ['cdb','lci']){const v=numTaxa($(id).value);if(!Number.isFinite(v)||v>300){$('compareError').textContent='Informe percentuais de CDI entre 0 e 300 nos dois campos.';$('comparison').innerHTML='';return}cfg[id]=v}
+ try{const c=compararInvest(P,e0,s1,dr,cfg);let h='';if(c.erro)h='<p class="empty">'+esc(c.erro)+'</p>';else{h='<p class="note">Mesmo período de cotização: '+dbr(e0)+' a '+dbr(c.end)+'.</p><div class="scroll"><table class="cmp"><thead><tr><th>Cenário</th><th>Ganho líquido</th><th class="c-rent">Rentabilidade</th><th>Diferença frente ao fundo</th></tr></thead><tbody>';
+ [['Fundo',c.fundo],['CDB · '+cfg.cdb+'% do CDI',c.cdb],['LCI/LCA · '+cfg.lci+'% do CDI',c.lci]].forEach(([name,v],i)=>{const dif=v.ganho-c.fundo.ganho;h+='<tr><td>'+esc(name)+'</td><td>'+brl(v.ganho)+'</td><td class="c-rent">'+pct(v.ret)+'</td><td>'+(i?brl(Math.abs(dif))+(Math.abs(dif)<.005?' de diferença':dif>0?' a mais':' a menos'):'Referência')+'</td></tr>'});h+='</tbody></table></div><p class="note">CDI acumulado: '+pct(c.cdi)+'. CDB inclui IOF e IR estimados. LCI/LCA considera isenção de IR para pessoa física, sem antecipação de resgate. Não considera carência, liquidez, risco ou custos específicos. Verifique as condições da oferta.</p><p class="note">Convenção de comparação: taxas diárias de CDI desde a aplicação, inclusive, até a data útil da cota final, exclusive. A convenção deve ser conciliada com a publicação da série e a cotização do fundo.</p>'}
+ const end=prevBD(s1<LAST?s1:LAST),fi=ipcaFim(end);if(fi&&fi>e0){const f=ipcaPR(e0,fi);if(f!==null){const r=simular(P,e0,fi,dr),real=(r.liq/P)/f-1;h+='<p class="note">Estimativa de ganho real até '+dbr(fi)+': '+pct(real)+'. IPCA mensal distribuído proporcionalmente pelos dias; não é um índice diário observado.</p>'}}else h+='<p class="note">IPCA não disponível para o período. A poupança foi omitida por falta de uma série histórica completa de remuneração.</p>';
+ $('comparison').innerHTML=h;
+ }catch(e){$('comparison').textContent='Comparação indisponível: '+e.message}
+}
+function audit(){let h='<p class="data-meta"><b>Dados carregados:</b> '+D.length+' cotas · '+dbr(D[0])+' a '+dbr(LAST)+'.<br>Fonte declarada: '+esc(currentData.fonte||'não informada')+'.<br>Regime: '+REG[REGIME].nome+' ('+(typeof currentData.tributacao?.longo_prazo==='boolean'?'informado no arquivo':'assumido; confirmar no cadastro do fundo')+').</p>';
+ for(const [date,b,l] of CONF.refs){if(!Q[date]||!Q[CONF.D0])continue;try{const r=simular(CONF.P,CONF.D0,date,0);h+='<p>Referência de '+dbr(date)+': diferença bruto '+brl(r.bruto-b)+'; líquido '+brl(r.liq-l)+'. '+(Math.abs(r.bruto-b)<.01&&Math.abs(r.liq-l)<.01?'Dentro de R$ 0,01.':'Conferir divergência.')+'</p>'}catch(e){h+='<p>Referência indisponível: '+esc(e.message)+'</p>'}}
+ h+='<p class="note">Referências fixas da versão anterior: aplicação de R$ 410.000 em 04/08/2026. Não validam outros cenários nem o come-cotas.</p>';$('audit').innerHTML=h;
+}
+function useData(j){const checked=setCotas(j,today());if(checked.erro)throw Error(checked.erro);currentData=j;
+ const cdiDates=Object.keys(CDI).sort();
+ $('dataStatus').textContent='Cotas até '+dbr(LAST)+' · CDI '+(cdiDates.length?'até '+dbr(cdiDates.at(-1)):'aguardando atualização');
+ $('warnings').hidden=!checked.avisos.length;$('warnings').textContent=checked.avisos.join(' ');render();audit();
+}
+async function refresh(){
+ if(loading)return;loading=true;lastAttempt=Date.now();
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
+ try{
+  const response=await fetch('cotas.json?t='+Date.now(),{cache:'no-store',signal:controller.signal});
+  if(!response.ok)throw Error('Falha na consulta');const j=await response.json();
+  if(LAST&&Object.keys(j.cotas||{}).sort().at(-1)<LAST)throw Error('Série anterior à última recebida');
+  useData(j);$('loadMessage').textContent='';$('loadMessage').hidden=true;
+  try{localStorage.setItem(quoteCacheKey,JSON.stringify(j))}catch(e){}
+ }catch(e){
+  if(!LAST){try{const cached=JSON.parse(localStorage.getItem(quoteCacheKey));if(cached)useData(cached)}catch(error){}}
+  $('loadMessage').hidden=false;
+  if(LAST){$('loadMessage').textContent='Conexão com os dados indisponível. Exibindo a última série recebida, com cotas até '+dbr(LAST)+'. O app tentará novamente automaticamente.'}
+  else{$('dataStatus').textContent='Dados temporariamente indisponíveis';$('loadMessage').textContent='Não foi possível obter os dados publicados. O app tentará novamente automaticamente.';fail('Aguardando os dados da atualização automática.');$('error').textContent=''}
+ }finally{clearTimeout(timer);loading=false}
+}
+$('end').value=today();try{const p=JSON.parse(localStorage.getItem('megadi-v3-settings'));if(p){for(const id of ['capital','start','cdb','lci'])if(typeof p[id]==='string')$(id).value=p[id]}}catch(e){}
+for(const id of ['capital','start','end','rate'])$(id).addEventListener('input',render);
+$('capital').addEventListener('blur',()=>{const n=entryNumber($('capital').value);if(Number.isFinite(n)&&n>0)$('capital').value=n2(n);render()});
+for(const id of ['cdb','lci'])$(id).addEventListener('input',renderComparison);
+for(const id of ['group','chartMetric'])$(id).addEventListener('change',renderMonthly);
+$('lastDate').addEventListener('click',()=>{if(LAST){$('end').value=LAST;render()}});$('today').addEventListener('click',()=>{$('end').value=today();render()});
+$('rows').addEventListener('click',e=>{const b=e.target.closest('[data-detail]');if(!b)return;const tr=$('detail-'+b.dataset.detail);tr.hidden=!tr.hidden;b.setAttribute('aria-expanded',String(!tr.hidden))});
+// Nenhum botão de carga manual: consulta ao abrir e enquanto a página está visível.
+if(location.protocol==='file:'){
+ $('dataStatus').textContent='Abra o app pelo endereço publicado';
+ $('loadMessage').textContent='Esta versão usa os dados da atualização automática e deve ser aberta pelo site hospedado.';
+ fail('Abra o app pelo endereço do site para carregar cotas e CDI.');$('error').textContent='';
+}else{
+ $('result').innerHTML='<h2>Carregando sua posição…</h2><p class="note">Consultando cotas e índices publicados.</p>';
+ refresh();
+ setInterval(()=>{if(!document.hidden)refresh()},5*60*1000);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-lastAttempt>60*1000)refresh()});
+ window.addEventListener('online',()=>refresh());
+}
+</script></body></html>
 
-$("d1").value=iso(new Date());
-try{const s=JSON.parse(localStorage.getItem("megadi")||"null");if(s){$("v").value=s.v;$("d0").value=s.d0}}catch(e){}
-$("v").addEventListener("input",()=>mask($("v")));
-$("v").addEventListener("blur",()=>{pad($("v"));render()});
-["v","d0","d1","t"].forEach(i=>$(i).addEventListener("input",render));
-let rz;window.addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>drawChart(lastRows),120)});
-
-fetch("cotas.json?t="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(j=>{
-  const v=setCotas(j,iso(new Date()));
-  if(v.erro){$("status").textContent=v.erro==="vazio"?"Ainda sem cotas. Rode o workflow “Atualizar cotas” no GitHub.":v.erro;return}
-  $("status").textContent=`Última cota oficial: ${dbr(LAST)} · atualizado em ${dbr((j.atualizado_em||"").slice(0,10))} ${(j.atualizado_em||"").slice(11)}`;
-  $("regimeNote").textContent=`Regime tributário usado: ${REG[v.regime].nome} (${v.regimeFonte==="cvm"?"lido do cadastro da CVM":"assumido, conforme a página da CAIXA para este fundo; o cadastro da CVM não informou"}).`;
-  renderAlert(v.avisos);
-  render();conferencia();
-}).catch(()=>{$("status").textContent="Não foi possível carregar cotas.json."});
-</script>
-</body>
-</html>
 
