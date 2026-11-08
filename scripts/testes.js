@@ -89,6 +89,22 @@ t("taxa automática calculada", dr !== null && perto(dr, 0.0005, 1e-12), String(
   }
 });
 
+
+secao("IOF no mês a mês segue a data escolhida");
+carregar(serie("2027-06-30"));
+{
+  const r = E.simular(P, ini, "2026-11-04", 0), mm = E.mensal(P, ini, "2026-11-04", 0);
+  const ago = mm.rows[0];
+  t("data com 30 dias ou mais: nenhum mês desconta IOF", mm.iofTaxa === 0 && r.iof === 0);
+  t("agosto sem IOF: líquido = bruto x (1 - 22,5%)", perto(ago.liq, ago.bruto * 0.775, 0.01), `${ago.liq.toFixed(2)} x ${(ago.bruto * 0.775).toFixed(2)}`);
+  const r2 = E.simular(P, ini, "2026-08-25", 0), m2 = E.mensal(P, ini, "2026-08-25", 0);
+  t("data com 21 dias: IOF de 30% do rendimento", perto(m2.iofTaxa, 0.30, 1e-12) && r2.iof > 0, String(m2.iofTaxa));
+  t("com IOF, o mês a mês soma o líquido do resultado", perto(m2.rows.reduce((a, x) => a + x.liq, 0), r2.liq - P, 0.01));
+  const r3 = E.simular(P, "2026-08-20", "2026-09-10", 0), m3 = E.mensal(P, "2026-08-20", "2026-09-10", 0);
+  t("21 dias atravessando o mês: mesma taxa de IOF nos dois meses", m3.rows.length === 2 && m3.rows.every(x => perto(x.liq, x.bruto * (1 - 0.30) * 0.775, 0.01)), m3.rows.map(x => [x.bruto.toFixed(2), x.liq.toFixed(2)]).join(" "));
+  t("e a soma fecha com o resultado", perto(m3.rows.reduce((a, x) => a + x.liq, 0), r3.liq - P, 0.01));
+}
+
 secao("Comparativos (CDI, CDB, LCI/LCA, IPCA)");
 carregar(serie("2027-06-30"));
 const cfg = { cdb: 100, lci: 90 };
@@ -141,4 +157,3 @@ if (real) {
 
 console.log(`\n${ok} ok, ${falhas} falha(s)`);
 process.exit(falhas ? 1 : 0);
-
