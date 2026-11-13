@@ -2,8 +2,8 @@
  "fundo": "CAIXA Mega DI RF",
  "cnpj": "10322633000170",
  "fonte": "CVM - Dados Abertos - Informe Diário",
- "atualizado_em": "2026-11-12 22:47",
- "ultima_data": "2026-11-10",
+ "atualizado_em": "2026-11-13 14:41",
+ "ultima_data": "2026-11-11",
  "tributacao": {
   "longo_prazo": true,
   "fonte": "https://dados.cvm.gov.br/dados/FI/CAD/DADOS/registro_fundo_classe.zip",
@@ -79,6 +79,7 @@
   "2026-11-05": 5.382269,
   "2026-11-06": 5.384904,
   "2026-11-09": 5.387288,
-  "2026-11-10": 5.389889
+  "2026-11-10": 5.389889,
+  "2026-11-11": 5.392636
  }
 }
